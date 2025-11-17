@@ -25,6 +25,6 @@ export interface SessionData{
     email:string;
     permissions:string[];
     roles:string[];
-    createdAt:Date;
-    updatedAt:Date;
+    createdAt:string;
+    lastActivity:string;
 }
