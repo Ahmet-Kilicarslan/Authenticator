@@ -77,4 +77,4 @@ class sessionService {
 }
 
 
-export default new sessionService();
+export default  sessionService;
