@@ -1,11 +1,6 @@
 import pool from "../config/dbc.js";
-import type {User, RegisterDTO} from '../types';
-
-
 class UserRepository {
-
-    async create(userData: RegisterDTO): Promise<User> {
-
+    async create(userData) {
         const sql = `INSERT INTO users (username,
                                         email,
                                         password)
@@ -15,18 +10,15 @@ class UserRepository {
                          created_at as "createdAt",
                          updated_at as "updatedAt"
         `;
-
         const result = await pool.query(sql, [
             userData.username,
             userData.email,
             userData.password,
         ]);
-
         return result.rows[0];
-    };
-
-
-    async getById(id: number):Promise<User | null> {
+    }
+    ;
+    async getById(id) {
         const sql = `SELECT id,
                             username,
                             email,
@@ -36,13 +28,11 @@ class UserRepository {
                             updated_at  as "updatedAt"
                      FROM users
                      WHERE id = $1`;
-
         const result = await pool.query(sql, [id]);
-
         return result.rows[0] || null;
-    };
-
-    async getByEmail(email: string):Promise<User | null> {
+    }
+    ;
+    async getByEmail(email) {
         const sql = `SELECT id,
                             username,
                             email,
@@ -52,32 +42,22 @@ class UserRepository {
                             updated_at  as "updatedAt"
                      FROM users
                      WHERE email = $1`;
-
         const result = await pool.query(sql, [email]);
-
         return result.rows[0] || null;
-
-
-    };
-
-
-    async emailExists(email: string):Promise<boolean> {
-
-
+    }
+    ;
+    async emailExists(email) {
         const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)`;
         const result = await pool.query(sql, [email]);
-
         return result.rows[0].exists;
-    };
-
-    async usernameExists(username: string):Promise<boolean> {
-
+    }
+    ;
+    async usernameExists(username) {
         const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)`;
         const result = await pool.query(sql, [username]);
-
         return result.rows[0].exists;
-    };
+    }
+    ;
 }
-
-
-export default  UserRepository;
+export default UserRepository;
+//# sourceMappingURL=UserRepository.js.map
