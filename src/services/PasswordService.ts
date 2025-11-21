@@ -35,6 +35,8 @@ class PasswordService {
             errors.push('Password must contain a number');
         }
 
+        
+
         return {
             strong: errors.length === 0,
             errors
