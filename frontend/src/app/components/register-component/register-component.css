@@ -1,0 +1,198 @@
+/* ===============================
+   REGISTER COMPONENT - Specific Styles
+   =============================== */
+
+/* Container - Centers the register card */
+.register-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Card - The white box with shadow */
+.register-card {
+  width: 100%;
+  background: var(--pureWhite);
+  border: 3px solid var(--black);
+  border-radius: 0;
+  padding: 40px;
+  box-shadow: 8px 8px 0 var(--black);
+  transition: all 0.2s ease;
+}
+
+.register-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 var(--black);
+}
+
+/* Header - Top section with logo and title */
+.register-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Logo Image */
+.logo-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.register-header h2 {
+  color: var(--black);
+  font-size: 1.75rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Password Toggle - Show/Hide button inside password field */
+.password-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  flex: 1;
+  padding-right: 60px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--black);
+  color: var(--pureWhite);
+  border: none;
+  padding: 0 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.password-toggle:hover {
+  background: var(--darkGrey);
+}
+
+.password-toggle:active {
+  transform: scale(0.98);
+}
+
+/* Signin Link - Bottom section */
+.signin-link {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mediumGrey);
+  margin-top: 24px;
+}
+
+.signin-link a {
+  color: var(--black);
+  text-decoration: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  margin-left: 4px;
+}
+
+.signin-link a:hover {
+  border-bottom-color: var(--black);
+}
+
+/* Success Message - Shown after successful registration */
+.success-message {
+  text-align: center;
+  padding: 32px 20px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: all 0.3s ease;
+}
+
+.success-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--black);
+  color: var(--pureWhite);
+  border: 2px solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  margin: 0 auto 16px;
+  animation: successPop 0.5s ease-out;
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-message h3 {
+  color: var(--black);
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.success-message p {
+  color: var(--mediumGrey);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile Responsive - Component-specific adjustments */
+@media (max-width: 480px) {
+  .register-container {
+    padding: 16px;
+  }
+
+  .register-card {
+    padding: 28px;
+    box-shadow: 6px 6px 0 var(--black);
+  }
+
+  .register-card:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 7px 7px 0 var(--black);
+  }
+
+  .register-header h2 {
+    font-size: 1.5rem;
+  }
+}

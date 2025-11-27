@@ -1,12 +1,15 @@
 import {Component} from '@angular/core';
-import {Router} from '@angular/router';
+import { RouterLink, RouterLinkActive,RouterModule} from '@angular/router';
 import {LoginDTO} from '../../types/UserTypes';
 import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-login-component',
   imports: [
-    FormsModule
+    RouterModule,
+    FormsModule,
+    RouterLink,
+    RouterLinkActive
   ],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
@@ -24,7 +27,8 @@ export default class LoginComponent {
 
   isLoading: boolean = false;
   showPassword: boolean = false;
-  rememberMe: boolean = false;
+  use2fa: boolean = false;
+  success: boolean = false;
 
   handleLogin() {
 

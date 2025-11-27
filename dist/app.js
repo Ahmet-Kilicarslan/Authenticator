@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //--------Routes----------
-app.use('Authentication', authenticationRoute);
+app.use('/api/auth', authenticationRoute);
 //------------------------
 export default app;
 //# sourceMappingURL=app.js.map

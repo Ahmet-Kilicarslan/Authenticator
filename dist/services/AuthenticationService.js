@@ -8,47 +8,43 @@ class AuthenticationService {
         this.passwordService = passwordService;
     }
     async register(registerDto) {
-        try {
-            const emailExists = await this.UserRepository.emailExists(registerDto.email);
-            if (emailExists) {
-                new Error("Email already exists");
-            }
-            const uniqueName = await this.UserRepository.usernameExists(registerDto.username);
-            if (uniqueName) {
-                new Error("Username already exists");
-            }
-            const strongPassword = await this.passwordService.validateStrength(registerDto.password);
-            if (strongPassword) {
-                new Error("weak password");
-            }
-            const hashedPassword = await this.passwordService.hashPassword(registerDto.password);
-            const user = await this.UserRepository.create({
-                username: registerDto.username,
-                email: registerDto.email,
-                password: hashedPassword
-            });
-            const token = await this.sessionService.createSession({
-                userId: user.id,
-                email: user.email,
-                permissions: [],
-                roles: []
-            });
-            return { token, user };
+        const emailExists = await this.UserRepository.emailExists(registerDto.email);
+        if (emailExists) {
+            throw new Error("Email already exists");
         }
-        catch (error) {
-            throw error;
+        const uniqueName = await this.UserRepository.usernameExists(registerDto.username);
+        if (uniqueName) {
+            throw new Error("Username already exists");
         }
+        const isPassword = await this.passwordService.validateStrength(registerDto.password);
+        if (!isPassword.strong) {
+            throw new Error(`Weak password: ${isPassword.errors.join(', ')}`);
+        }
+        const hashedPassword = await this.passwordService.hashPassword(registerDto.password);
+        const user = await this.UserRepository.create({
+            username: registerDto.username,
+            email: registerDto.email,
+            password: hashedPassword
+        });
+        const token = await this.sessionService.createSession({
+            userId: user.id,
+            email: user.email,
+            permissions: [],
+            roles: []
+        });
+        return { token, user };
     }
     async login(loginDto) {
         try {
+            const message = "Invalid Credentials";
             const user = await this.UserRepository.getByEmail(loginDto.email);
             if (!user) {
-                new Error("Invalid email");
+                new Error(message);
             }
             const notNullUser = user;
             const checkPassword = await this.passwordService.comparePassword(loginDto.password, notNullUser.password);
             if (checkPassword) {
-                new Error("Wrong password");
+                new Error(message);
             }
             const token = await this.sessionService.createSession({
                 userId: notNullUser.id,
