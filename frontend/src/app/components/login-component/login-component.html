@@ -44,7 +44,7 @@
         <span class="error-message" [class.show]="passwordError">{{ passwordError }}</span>
       </div>
 
-      <!---------------------------2FA ------------------------------------------------>
+      <!---------------------------2FA----------------------------------------------->
       <div class="form-options">
         <div class="checkbox-wrapper">
           <input type="checkbox"
@@ -56,10 +56,11 @@
             <span>Use 2FA</span>
           </label>
         </div>
+
         <a href="#" class="forgot-link">Forgot password?</a>
       </div>
 
-      <button type="submit" class="btn-primary" [class.loading]="isLoading">
+      <button type="submit" class="btn-primary" [class.loading]="isLoginLoading">
         <span class="btn-text">SIGN IN</span>
         <div class="btn-loader">
           <div class="loader-bar"></div>
