@@ -1,1 +1,91 @@
-<p>register-component works!</p>
+<div class="register-container">
+  <div class="register-card">
+
+    <div class="register-header">
+      <div class="logo">
+        <img src="/lubiv-colored.png" alt="logo" class="logo-img">
+
+      </div>
+      <h2>Sign Up</h2>
+    </div>
+
+    <form class="register-form" (ngSubmit)="handleRegister()" novalidate>
+      <!---------------------Username---------------------------------->
+      <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <div class="input-wrapper">
+          <input type="text"
+                 id="username"
+                 name="username"
+                 [(ngModel)]="registerData.username"
+                 required>
+        </div>
+        <span class="error-message" [class.show]="usernameError">{{ usernameError }}</span>  <!-- Add this -->
+
+      </div>
+
+
+      <!-----------------------Email------------------------------------->
+      <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <div class="input-wrapper">
+          <input type="email"
+                 id="email"
+                 name="email"
+                 [(ngModel)]="registerData.email"
+                 required>
+        </div>
+        <span class="error-message" [class.show]="emailError">{{ emailError }}</span>
+      </div>
+
+      <!---------------------Password----------------------------------->
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-wrapper password-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'"
+                 id="password"
+                 name="password"
+                 [(ngModel)]="registerData.password"
+                 required>
+          <button type="button"
+                  class="password-toggle"
+                  (click)="togglePassword()"
+                  id="passwordToggle" aria-label="Toggle password visibility">
+            <span class="toggle-text">{{ showPassword ? 'HIDE' : 'SHOW' }}</span>
+          </button>
+        </div>
+        <span class="error-message" [class.show]="passwordError">{{ passwordError }}</span>
+      </div>
+
+      <!-----------------------Button--------------------------------------->
+      <button type="submit" class="btn-primary" [class.loading]="isLoading">
+        <span class="btn-text">SIGN UP</span>
+        <div class="btn-loader">
+          <div class="loader-bar"></div>
+          <div class="loader-bar"></div>
+          <div class="loader-bar"></div>
+        </div>
+      </button>
+
+    </form>
+
+
+    <div class="signin-link">
+      <span>Already have account?</span>
+      <a class="nav-link"
+         routerLink="/Login"
+         routerLinkActive="active">Sign in</a>
+    </div>
+
+
+    @if (success) {
+      <div class="success-message">
+        <div class="success-icon">✓</div>
+        <h3>Success</h3>
+        <p>Redirecting to login</p>
+      </div>
+    }
+
+  </div>
+</div>

@@ -3,7 +3,7 @@ import app from "./app.js";
 import pool from "./config/dbc.js";
 import redisClient from "./config/redis.js";
 dotenv.config();
-const port = parseInt(process.env.DB_PORT || '5342');
+const port = parseInt(process.env.PORT || '3000');
 async function testConnection() {
     try {
         const sql = "SELECT NOW() as current_time";
