@@ -1,4 +1,4 @@
-import redisClient from '../config/redis';
+import redisClient from '../config/redis.js';
 import crypto from 'crypto';
 import type {SessionData} from '../types'
 
