@@ -67,7 +67,7 @@ class AuthenticationService {
 
             const checkPassword = await this.passwordService.comparePassword(loginDto.password, notNullUser.password);
 
-            if (checkPassword) {
+            if (!checkPassword) {
                 new Error(message);
             }
 
