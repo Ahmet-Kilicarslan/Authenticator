@@ -9,7 +9,7 @@
 :root {
   --white: #f5f5f5;
   --black: #000000;
-  --grey: #999999;
+  --lightGrey: #999999;
   --red: #dc3545;
   --darkGrey:#333333;
   --mediumGrey: #666666;
@@ -79,7 +79,7 @@ body {
 }
 
 .input-wrapper input::placeholder {
-  color: var(--grey);
+  color: var(--lightGrey);
 }
 
 /* Input Focus - Interactive state */
@@ -251,7 +251,7 @@ box-shadow: 4px 4px 0 var(--black);
 :root {
   --white: #f5f5f5;
   --black: #000000;
-  --grey: #999999;
+  --lightGrey: #999999;
   --red: #dc3545;
   --darkGrey:#333333;
 }
@@ -319,7 +319,7 @@ body {
 }
 
 .input-wrapper input::placeholder {
-  color: var(--grey);
+  color: var(--lightGrey);
 }
 
 /* Input Focus - Interactive state */

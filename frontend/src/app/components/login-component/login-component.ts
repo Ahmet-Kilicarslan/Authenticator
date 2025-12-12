@@ -48,6 +48,9 @@ export default class LoginComponent {
       next: (data:LoginResponse) => {
         console.log("login Successful, user: ",data.user);
         this.success = true;
+        setTimeout(() => {
+          this.router.navigate(['/Profile']);
+        }, 1500);
       },
       error: (error:any) => {
         this.isLoginLoading = false;

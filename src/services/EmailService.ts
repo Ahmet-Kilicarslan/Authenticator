@@ -7,7 +7,7 @@ const apiKey = process.env.RESEND_API_KEY;
 
 const resend = new Resend(apiKey);
 
-export default class EmailService {
+ class EmailService {
 
 
     async sendOTPEmail(email: string, otp: string): Promise<void> {
@@ -30,4 +30,4 @@ export default class EmailService {
     }
 
 
-}
+} export default EmailService;

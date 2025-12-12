@@ -1,0 +1,341 @@
+/* ===============================
+   PROFILE COMPONENT - Brutalist Style
+   =============================== */
+
+
+:host {
+  display: block;
+  width: 100%;
+
+}
+/* Page wrapper */
+.profile-page {
+  width: 100%;
+  min-height: calc(100vh - 80px); /* Adjust based on header height */
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0 auto;
+}
+
+/* Main Container - Flexbox Column */
+.profile-container {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0 auto;
+
+}
+
+/* ===============================
+   TOP SECTION - Picture + Info (Flexbox Row)
+   =============================== */
+
+.profile-top {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* ===============================
+   LEFT: Profile Picture Section
+   =============================== */
+
+.profile-pic-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.profile-pic-wrapper {
+  width: 160px;
+  height: 160px;
+  border: 3px solid var(--black);
+  background: var(--lightGrey);
+  box-shadow: 6px 6px 0 var(--black);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.profile-pic-wrapper:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--black);
+}
+
+.profile-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===============================
+   RIGHT: User Info Section
+   =============================== */
+
+.profile-info-section {
+  flex: 1; /* Take remaining space */
+  min-width: 0; /* Allow shrinking */
+}
+
+.info-card {
+  background: var(--pureWhite);
+  border: 3px solid var(--black);
+  box-shadow: 8px 8px 0 var(--black);
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 var(--black);
+}
+
+/* Card Header */
+.card-header {
+  padding: 20px 28px;
+  border-bottom: 3px solid var(--black);
+  background: var(--black);
+}
+
+.card-header h2 {
+  margin: 0;
+  color: var(--pureWhite);
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Card Body */
+.card-body {
+  padding: 28px;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 28px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--black);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Input Wrapper */
+.input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 3px solid var(--black);
+  background: var(--pureWhite);
+  color: var(--black);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  box-shadow: 4px 4px 0 var(--black);
+  transform: translate(-2px, -2px);
+}
+
+.form-input:disabled {
+  background: var(--lightGrey);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Info Display (read-only field) */
+.info-display {
+  padding: 12px 16px;
+  border: 3px solid var(--black);
+  background: var(--lightGrey);
+  color: var(--darkGrey);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ===============================
+   BOTTOM: Security Section (Full Width)
+   =============================== */
+
+.profile-security-section {
+  width: 100%;
+}
+
+.security-card {
+  background: var(--pureWhite);
+  border: 3px solid var(--black);
+  box-shadow: 8px 8px 0 var(--black);
+  transition: all 0.2s ease;
+}
+
+.security-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 var(--black);
+}
+
+/* Security Items */
+.security-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 2px solid var(--lightGrey);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.security-item:last-child {
+  border-bottom: none;
+}
+
+.security-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.security-label {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--black);
+}
+
+.security-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--darkGrey);
+}
+
+.security-disabled {
+  color: var(--mediumGrey);
+  font-style: italic;
+}
+
+/* ===============================
+   BUTTONS - Reusing Global Styles
+   =============================== */
+
+/* Primary button styles should be in your global CSS */
+/* Secondary button specific to profile */
+.btn-secondary {
+  padding: 12px 24px;
+  border: 3px solid var(--black);
+  background: var(--pureWhite);
+  color: var(--black);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0 var(--black);
+  white-space: nowrap;
+}
+
+.btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+/* ===============================
+   RESPONSIVE - Mobile Adjustments
+   =============================== */
+
+@media (max-width: 768px) {
+  .profile-container {
+    max-width: 600px;
+  }
+
+  .profile-top {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .profile-pic-section {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+  }
+
+  .profile-pic-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-page {
+    padding: 20px 16px;
+  }
+
+  .profile-container {
+    gap: 24px;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .security-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+}

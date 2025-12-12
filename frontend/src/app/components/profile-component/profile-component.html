@@ -1,1 +1,135 @@
-<p>profile-component works!</p>
+<div class="profile-container">,
+
+  <div class="profile-top">
+
+    <div class="profile-pic-section">
+
+      <div class="profile-pic-wrapper">
+        <img [src]="userData.profilePicture"
+             alt="Profile Picture"
+             class="profile-pic">
+      </div>
+      <button type="button"
+              class="btn-secondary"
+              (click)="handleChangePhoto()">
+        CHANGE PHOTO
+      </button>
+
+    </div>
+
+    <div class="profile-info-section">
+      <div class="info-card">
+
+        <div class="card-header">
+          <h2>PROFILE</h2>
+        </div>
+
+        <div class="card-body">
+
+          <div class="form-group">
+            <label class="form-label">USERNAME</label>
+            <div class="input-wrapper">
+              <input type="text"
+                     [(ngModel)]="userData.username"
+                     class="form-input"
+                     [disabled]="!isEditing">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">EMAIL</label>
+            <div class="input-wrapper">
+              <input type="email"
+                     [(ngModel)]="userData.email"
+                     class="form-input"
+                     [disabled]="!isEditing">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">MEMBER SINCE</label>
+            <div class="info-display">
+              {{ userData.createdAt }}
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            @if (!isEditing) {
+              <button type="button"
+                      class="btn-primary"
+                      (click)="isEditing = true">
+                EDIT
+              </button>
+            }
+            @if (isEditing) {
+              <button type="button"
+                      class="btn-primary"
+                      [class.loading]="isSaving"
+                      (click)="handleSave()">
+                <span class="btn-text">SAVE</span>
+                <div class="btn-loader">
+                  <div class="loader-bar"></div>
+                  <div class="loader-bar"></div>
+                  <div class="loader-bar"></div>
+                </div>
+              </button>
+
+              <button type="button"
+                      class="btn-secondary"
+                      (click)="handleCancel()"
+                      [disabled]="isSaving">
+                CANCEL
+              </button>
+            }
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-security-section">
+    <div class="security-card">
+      <div class="card-header">
+        <h2>
+          SECURITY
+        </h2>
+      </div>
+
+      <div class="card-body">
+
+        <div class="security-item">
+          <div class="security-info">
+            <span class="security-label">PASSWORD</span>
+            <span class="security-value">********</span>
+            <button type="button"
+            class="btn-secondary"
+            (click)="handleChangePassword()">
+              CHANGE PASSWORD
+            </button>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <span class="security-label">TWO-FACTOR AUTH</span>
+            <span class="security-label security-disabled">DISABLED</span>
+            <button type="button"
+                    class="btn-secondary"
+                    (click)="handleEnable2FA()">
+              ENABLE 2FA
+            </button>
+
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+</div>
