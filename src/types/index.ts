@@ -1,3 +1,4 @@
+
 export interface User{
     id:number;
     username:string;
@@ -20,11 +21,21 @@ export interface LoginDTO{
 
 }
 
-export interface SessionData{
+export interface SessionData {
     userId:number;
     email:string;
     permissions:string[];
     roles:string[];
     createdAt:string;
     lastActivity:string;
+}
+
+
+
+export interface UserDTO{
+    username:string;
+    email:string;
+    url:string;
+    createdAt:string;
+
 }

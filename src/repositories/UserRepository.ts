@@ -1,5 +1,5 @@
 import pool from "../config/dbc.js";
-import type {User, RegisterDTO} from '../types';
+import type {User, RegisterDTO, UserDTO} from '../types';
 
 
 class UserRepository {
@@ -26,7 +26,7 @@ class UserRepository {
     };
 
 
-    async getById(id: number):Promise<User | null> {
+    async getById(id: number): Promise<User | null> {
         const sql = `SELECT id,
                             username,
                             email,
@@ -42,7 +42,7 @@ class UserRepository {
         return result.rows[0] || null;
     };
 
-    async getByEmail(email: string):Promise<User | null> {
+    async getByEmail(email: string): Promise<User | null> {
         const sql = `SELECT id,
                             username,
                             email,
@@ -61,7 +61,7 @@ class UserRepository {
     };
 
 
-    async emailExists(email: string):Promise<boolean> {
+    async emailExists(email: string): Promise<boolean> {
 
 
         const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)`;
@@ -70,14 +70,33 @@ class UserRepository {
         return result.rows[0].exists;
     };
 
-    async usernameExists(username: string):Promise<boolean> {
+    async usernameExists(username: string): Promise<boolean> {
 
         const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)`;
         const result = await pool.query(sql, [username]);
 
         return result.rows[0].exists;
     };
+
+
+    async getUserWithProfilePicById(id: number): Promise<UserDTO | null> {
+        const sql = `SELECT username,
+                            email,
+                            url,
+                            created_at as "createdAt"
+                     FROM users
+                              LEFT JOIN profile_pictures on users.id = profile_pictures.user_id
+                     WHERE users.id = $1`;
+
+        const result = await pool.query(sql, [id]);
+
+        return result.rows[0];
+
+
+    }
+
+
 }
 
 
-export default  UserRepository;
+export default UserRepository;

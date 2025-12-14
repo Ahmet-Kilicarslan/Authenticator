@@ -40,9 +40,18 @@ class AuthenticationController {
             const result = await this.authService.register(registerData);
 
 
+
+            // Cookie creation here
+            res.cookie('authToken', result.token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000 //24 hours
+            });
+
             res.status(200).json({
                 message: " User registered successfully",
-                token: result.token,
+
                 user: {
                     id: result.user.id,
                     email: result.user.email,
@@ -88,9 +97,16 @@ class AuthenticationController {
             const loginData: LoginDTO = {email, password};
             const result = await this.authService.login(loginData);
 
+            res.cookie('authToken', result.token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000
+            });
+
+
             res.status(200).json({
                 message: " User logged in successfully",
-                token: result.token,
                 user: {
                     id: result.user.id,
                     email: result.user.email,
@@ -120,23 +136,20 @@ class AuthenticationController {
     async logout(req: Request, res: Response): Promise<void> {
         try {
 
-            const authHeader = req.headers["authorization"];
-            if (!authHeader) {
-                res.status(401).json({
-                    error: 'No token provided'
-                })
-                return;
-            }
-            const token = authHeader.replace("Bearer", " ");
+            const token = req.cookies.authToken;
 
             if (!token) {
-                res.status(401).json({
-                    error: 'Invalid token format'
-                })
+                res.status(401).json({error: 'token not found'});
                 return;
             }
 
             await this.authService.logout(token);
+
+            res.clearCookie('authToken');
+
+            res.status(200).json({
+                message: 'Logged out successfully'
+            });
 
         } catch (error: any) {
 

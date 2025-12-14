@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from 'cors';
 import authenticationRoute from "./routes/AuthenticationRoute.js";
+import profileRoute from "./routes/ProfileRoute.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -16,11 +18,13 @@ app.use(cors({
 
 }));
 app.use(express.urlencoded({extended: true}));
+app.use(cookieParser());
 
 
 //--------Routes----------
 
 app.use('/api/auth', authenticationRoute);
+app.use('/api/profile', profileRoute);
 
 //------------------------
 

@@ -19,7 +19,6 @@ user:{
   email:string;
 
 }
-token:string;
 message?:string;
 
 }
@@ -29,6 +28,11 @@ export interface UserData{
   username:string,
   email:string,
   password:string,
-  profilePicture:string,
+  url:string,
   createdAt:string,
+}
+
+export interface ProfileResponse {
+  message: string;
+  user: UserData;
 }

@@ -4,11 +4,19 @@
 
     <div class="profile-pic-section">
 
-      <div class="profile-pic-wrapper">
-        <img [src]="userData.profilePicture"
-             alt="Profile Picture"
-             class="profile-pic">
-      </div>
+      @if (userData.url) {
+        <div class="profile-pic-wrapper">
+          <img [src]="userData.url"
+               alt="Profile Picture"
+               class="profile-pic">
+        </div>
+      }@else{
+        <div class="profile-pic-wrapper">
+          <img src="/johan.jpeg"
+               alt="Default Profile Picture"
+               class="profile-pic">
+        </div>
+      }
       <button type="button"
               class="btn-secondary"
               (click)="handleChangePhoto()">
@@ -103,8 +111,8 @@
             <span class="security-label">PASSWORD</span>
             <span class="security-value">********</span>
             <button type="button"
-            class="btn-secondary"
-            (click)="handleChangePassword()">
+                    class="btn-secondary"
+                    (click)="handleChangePassword()">
               CHANGE PASSWORD
             </button>
           </div>
@@ -128,8 +136,6 @@
     </div>
 
   </div>
-
-
 
 
 </div>

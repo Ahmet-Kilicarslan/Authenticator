@@ -102,6 +102,7 @@ export default class RegisterComponent {
   };
 
   togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
 }
