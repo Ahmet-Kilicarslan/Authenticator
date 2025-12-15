@@ -1,17 +1,45 @@
-import type {RedisClientType} from 'redis';
-
+import {Resend} from 'resend';
+import dotenv from 'dotenv';
 import generateOTP from '../utils/otpGenerator.js';
+import type {RedisClient} from "../config/redis";
+
+
+dotenv.config();
+
+const apiKey = process.env.RESEND_API_KEY;
+
+const resend = new Resend(apiKey);
 
 class OTPService {
 
 
-    private redisClient: RedisClientType;
+
+    private redisClient: RedisClient;
 
     private OTP_EXPIRY: number = 300;
     private RATE_LIMIT_WINDOW: number = 60;
 
-    constructor(redisClient: RedisClientType) {
+    constructor(redisClient: RedisClient) {
         this.redisClient = redisClient;
+
+    }
+
+    async sendOTPEmail(email: string, otp: string): Promise<void> {
+        try {
+            await resend.emails.send({
+                from: 'onboarding@resend.dev',  //Resend default mail
+                to: email,
+                subject: 'One Time Password',
+                html: `<p>Your OTP is: <strong>${otp}</strong></p>
+           <p>This code will expire in 5 minutes.</p>`
+            });
+        } catch (error) {
+
+            if(error instanceof Error) {
+                throw new Error(`Failed to send otp: ${ error.message }`);
+            }
+            throw new Error(`Failed to send otp: unknown error`);
+        }
 
     }
 

@@ -21,4 +21,5 @@ redisClient.on('connect', () => {
 
 await redisClient.connect();
 
+export type RedisClient = typeof redisClient;
 export default redisClient;

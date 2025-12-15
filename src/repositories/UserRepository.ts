@@ -96,6 +96,19 @@ class UserRepository {
     }
 
 
+    async markAsVerified(email: string): Promise<boolean> {
+        const sql = `UPDATE users
+                     SET is_verified = true,
+                     updated_at = CURRENT_TIMESTAMP
+                     WHERE email = $1 `;
+
+        const result = await pool.query(sql, [email]);
+
+        return result.rows[0].exists;
+
+    }
+
+
 }
 
 

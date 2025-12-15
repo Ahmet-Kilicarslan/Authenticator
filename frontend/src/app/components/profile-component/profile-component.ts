@@ -38,6 +38,20 @@ export default class ProfileComponent implements OnInit {
     this.loadUserData();
   }
 
+  formatDate(isoString: string): string {
+    if (!isoString) return 'Unknown';
+
+    const date = new Date(isoString);
+
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+
+    return date.toLocaleDateString('en-US', options);
+  }
+
   loadUserData() {
      this.isLoading = true;
      this.errorMessage = "";

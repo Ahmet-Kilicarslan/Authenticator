@@ -82,6 +82,29 @@
   flex: 1; /* Take remaining space */
   min-width: 0; /* Allow shrinking */
 }
+.info-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--pureWhite);
+  border: none;
+}
+
+.info-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--darkGrey);
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+}
+
+
 
 .info-card {
   background: var(--pureWhite);
@@ -280,6 +303,18 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: 4px 4px 0 var(--black);
+}
+
+
+/* Button Group - For Save/Cancel buttons */
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.button-group button {
+  flex: 1;
 }
 
 /* ===============================

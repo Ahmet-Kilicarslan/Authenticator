@@ -10,7 +10,7 @@
                alt="Profile Picture"
                class="profile-pic">
         </div>
-      }@else{
+      } @else {
         <div class="profile-pic-wrapper">
           <img src="/johan.jpeg"
                alt="Default Profile Picture"
@@ -54,11 +54,9 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">MEMBER SINCE</label>
-            <div class="info-display">
-              {{ userData.createdAt }}
-            </div>
+          <div class="info-section">
+            <div class="info-label">MEMBER SINCE</div>
+            <div class="info-value">{{ formatDate(userData.createdAt) }}</div>
           </div>
 
           <div class="action-buttons">
@@ -70,24 +68,27 @@
               </button>
             }
             @if (isEditing) {
-              <button type="button"
-                      class="btn-primary"
-                      [class.loading]="isSaving"
-                      (click)="handleSave()">
-                <span class="btn-text">SAVE</span>
-                <div class="btn-loader">
-                  <div class="loader-bar"></div>
-                  <div class="loader-bar"></div>
-                  <div class="loader-bar"></div>
-                </div>
-              </button>
 
-              <button type="button"
-                      class="btn-secondary"
-                      (click)="handleCancel()"
-                      [disabled]="isSaving">
-                CANCEL
-              </button>
+              <div class="button-group">
+                <button type="button"
+                        class="btn-secondary"
+                        [class.loading]="isSaving"
+                        (click)="handleSave()">
+                  <span class="btn-text">SAVE</span>
+                  <div class="btn-loader">
+                    <div class="loader-bar"></div>
+                    <div class="loader-bar"></div>
+                    <div class="loader-bar"></div>
+                  </div>
+                </button>
+
+                <button type="button"
+                        class="btn-secondary"
+                        (click)="handleCancel()"
+                        [disabled]="isSaving">
+                  CANCEL
+                </button>
+              </div>
             }
           </div>
 
