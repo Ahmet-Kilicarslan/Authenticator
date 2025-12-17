@@ -58,6 +58,25 @@ class UserRepository {
         return result.rows[0].exists;
     }
     ;
+    async getUserWithProfilePicById(id) {
+        const sql = `SELECT username,
+                            email,
+                            url,
+                            created_at as "createdAt"
+                     FROM users
+                              LEFT JOIN profile_pictures on users.id = profile_pictures.user_id
+                     WHERE users.id = $1`;
+        const result = await pool.query(sql, [id]);
+        return result.rows[0];
+    }
+    async markAsVerified(email) {
+        const sql = `UPDATE users
+                     SET is_verified = true,
+                     updated_at = CURRENT_TIMESTAMP
+                     WHERE email = $1 `;
+        const result = await pool.query(sql, [email]);
+        return result.rows[0].exists;
+    }
 }
 export default UserRepository;
 //# sourceMappingURL=UserRepository.js.map

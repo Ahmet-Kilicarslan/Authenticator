@@ -13,4 +13,7 @@ router.post("/resend-verification", async (req, res) => {
     return emailVerificationController.resendVerification(req,res);
 })
 
+
+
+
 export default router;

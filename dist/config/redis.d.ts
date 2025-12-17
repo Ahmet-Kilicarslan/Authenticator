@@ -2292,5 +2292,6 @@ declare const redisClient: import("@redis/client").RedisClientType<{
         };
     };
 } & import("redis").RedisModules, import("redis").RedisFunctions, import("redis").RedisScripts, import("redis").RespVersions, import("redis").TypeMapping>;
+export type RedisClient = typeof redisClient;
 export default redisClient;
 //# sourceMappingURL=redis.d.ts.map

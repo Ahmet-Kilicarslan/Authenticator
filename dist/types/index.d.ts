@@ -24,4 +24,10 @@ export interface SessionData {
     createdAt: string;
     lastActivity: string;
 }
+export interface UserDTO {
+    username: string;
+    email: string;
+    url: string;
+    createdAt: string;
+}
 //# sourceMappingURL=index.d.ts.map

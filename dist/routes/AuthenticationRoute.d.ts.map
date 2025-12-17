@@ -1,1 +1,1 @@
-{"version":3,"file":"AuthenticationRoute.d.ts","sourceRoot":"","sources":["../../src/routes/AuthenticationRoute.ts"],"names":[],"mappings":"AAQA,QAAA,MAAM,MAAM,4CAAmB,CAAC;AAkIhC,eAAe,MAAM,CAAC"}
+{"version":3,"file":"AuthenticationRoute.d.ts","sourceRoot":"","sources":["../../src/routes/AuthenticationRoute.ts"],"names":[],"mappings":"AAIA,QAAA,MAAM,MAAM,4CAAmB,CAAC;AAgBhC,eAAe,MAAM,CAAC"}

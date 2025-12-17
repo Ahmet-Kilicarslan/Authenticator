@@ -21,7 +21,7 @@ class EmailVerificationService {
 
         const otp = await this.OTPService.generateAndStoreOTP(email,this.OTP_PURPOSE);
 
-        await this.OTPService.sendOTPEmail(email,otp);
+        await this.OTPService.sendOTPEmailViaBrevo(email,otp);
 
 
     }
