@@ -27,11 +27,7 @@ class EmailVerificationController {
         );
     }
 
-    /**
-     * Send verification email with OTP
-     * POST /api/auth/send-verification
-     * Body: { email: "user@example.com" }
-     */
+
     async sendVerificationEmail(req: Request, res: Response): Promise<void> {
         try {
             const { email } = req.body;
