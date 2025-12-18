@@ -5,8 +5,8 @@ const emailVerificationController = new EmailVerificationController();
 router.post("/verify-email", async (req, res) => {
     return emailVerificationController.verifyEmail(req, res);
 });
-router.post("/resend-verification", async (req, res) => {
-    return emailVerificationController.resendVerification(req, res);
+router.post("/send-verification", async (req, res) => {
+    return emailVerificationController.sendVerificationEmail(req, res);
 });
 export default router;
 //# sourceMappingURL=EmailVerificationRoute.js.map

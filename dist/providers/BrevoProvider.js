@@ -1,31 +1,20 @@
 import * as brevo from '@getbrevo/brevo';
-import type IEmailProvider from './IEmailProvider.js';
-
-
-export default class BrevoProvider implements IEmailProvider {
-
-    private brevoApi: brevo.TransactionalEmailsApi;
-    private fromEmail: string;
-    private fromName: string;
-
-
-
-    constructor(apiKey: string, fromEmail: string, fromName: string ) {
+export default class BrevoProvider {
+    brevoApi;
+    fromEmail;
+    fromName;
+    constructor(apiKey, fromEmail, fromName) {
         // Initialize the API instance
         this.brevoApi = new brevo.TransactionalEmailsApi();
-
         // Set the API key directly on the instance
         // This is the modern way - much simpler than the old SDK!
-        this.brevoApi.setApiKey(0, apiKey);  // 0 is the authentication method index
-
+        this.brevoApi.setApiKey(0, apiKey); // 0 is the authentication method index
         this.fromEmail = fromEmail;
         this.fromName = fromName;
     }
-
-    async sendOtpEmail(email: string,otp:string): Promise<void> {
-
-        try{
-            const sendSmtpEmail: brevo.SendSmtpEmail = {
+    async sendOtpEmail(email, otp) {
+        try {
+            const sendSmtpEmail = {
                 subject: 'Verify Your Email - OTP Code',
                 to: [{ email: email }],
                 sender: {
@@ -60,16 +49,11 @@ export default class BrevoProvider implements IEmailProvider {
                 `
             };
             await this.brevoApi.sendTransacEmail(sendSmtpEmail);
-
-        }catch(error:any){
-
+        }
+        catch (error) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
             throw new Error(`Failed to send OTP via Brevo: ${errorMessage}`);
         }
-
     }
-
-
-
-
 }
+//# sourceMappingURL=BrevoProvider.js.map

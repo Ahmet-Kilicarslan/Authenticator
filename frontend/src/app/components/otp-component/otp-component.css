@@ -1,0 +1,575 @@
+/* ===============================
+   OTP VERIFICATION - Brutalist Style
+   =============================== */
+
+/* Container */
+.otp-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Card */
+.otp-card {
+  width: 100%;
+  background: var(--pureWhite);
+  border: 3px solid var(--black);
+  padding: 40px;
+  box-shadow: 8px 8px 0 var(--black);
+  transition: all 0.2s ease;
+}
+
+.otp-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 var(--black);
+}
+
+/* Header */
+.otp-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.otp-header h2 {
+  color: var(--black);
+  font-size: 1.75rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.email-display {
+  color: var(--mediumGrey);
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px;
+  word-break: break-word;
+}
+
+.email-display strong {
+  color: var(--black);
+  font-weight: 900;
+}
+
+/* Timer Container */
+.timer-container {
+  background: var(--pureWhite);
+  border: 3px solid var(--black);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.timer-container:hover {
+  background: var(--pureWhite);
+}
+
+.timer-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.timer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.timer-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mediumGrey);
+}
+
+.timer-value {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--black);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.timer-warning {
+  color: #d32f2f;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Expired Message */
+.expired-message {
+  background: #fff3cd;
+  border: 3px solid #856404;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.expired-message:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 #856404;
+}
+
+.expired-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.expired-message p {
+  color: #856404;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Success Message */
+.success-message {
+  text-align: center;
+  padding: 40px 20px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: all 0.3s ease;
+}
+
+.success-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--black);
+  color: var(--pureWhite);
+  border: 3px solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0 auto 20px;
+  animation: successPop 0.5s ease-out;
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+.success-message h3 {
+  color: var(--black);
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.success-message p {
+  color: var(--mediumGrey);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* OTP Form */
+.otp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Form Group */
+.form-group {
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+/* Input Wrapper */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* OTP Input - Special styling for 6 digits */
+.otp-form input[type="text"] {
+  width: 100%;
+  padding: 20px;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 12px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  border: 3px solid var(--black);
+  background: var(--pureWhite);
+  color: var(--black);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.otp-form input[type="text"]:focus {
+  border-color: var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.otp-form input[type="text"]::placeholder {
+  letter-spacing: 8px;
+  color: var(--lightGrey);
+  opacity: 0.5;
+}
+
+.otp-form input[type="text"]:disabled {
+  background: var(--lightGrey);
+  cursor: not-allowed;
+  opacity: 0.6;
+  border-color: var(--mediumGrey);
+}
+
+/* Error Message */
+.error-message {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #d32f2f;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 8px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
+}
+
+.error-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Primary Button
+.btn-primary {
+  width: 100%;
+  padding: 16px 32px;
+  background: var(--black);
+  color: var(--pureWhite);
+  border: 3px solid var(--black);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--darkGrey);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.btn-primary:disabled {
+  background: var(--mediumGrey);
+  border-color: var(--mediumGrey);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary.loading .btn-text {
+  opacity: 0;
+}
+
+ */
+
+.btn-text {
+  display: inline-block;
+  transition: opacity 0.2s ease;
+}
+
+.btn-loader {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  gap: 4px;
+}
+
+.btn-primary.loading .btn-loader {
+  display: flex;
+}
+
+.loader-bar {
+  width: 3px;
+  height: 16px;
+  background: var(--pureWhite);
+  animation: loader 1s infinite;
+}
+
+.loader-bar:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loader-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loader-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loader {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.5);
+  }
+}
+
+/* Secondary Button (Resend)
+.btn-secondary {
+  width: 100%;
+  padding: 16px 32px;
+  background: var(--pureWhite);
+  color: var(--black);
+  border: 3px solid var(--black);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--black);
+  color: var(--pureWhite);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.btn-secondary:disabled {
+  background: var(--lightGrey);
+  color: var(--mediumGrey);
+  border-color: var(--mediumGrey);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+ */
+
+.btn-secondary.loading .btn-text {
+  opacity: 0;
+}
+
+.btn-secondary .btn-loader {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  gap: 4px;
+}
+
+.btn-secondary.loading .btn-loader {
+  display: flex;
+}
+
+.btn-secondary .loader-bar {
+  width: 3px;
+  height: 16px;
+  background: var(--black);
+}
+
+/* Help Text */
+.help-text {
+  text-align: center;
+  padding: 16px 0;
+  border-top: 2px solid var(--lightGrey);
+  border-bottom: 2px solid var(--lightGrey);
+}
+
+.help-text p {
+  color: var(--mediumGrey);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Back Link */
+.back-link {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.back-link .link {
+  color: var(--black);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-block;
+  padding: 4px 0;
+}
+
+.back-link .link:hover {
+  border-bottom-color: var(--black);
+  transform: translateX(-4px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .otp-container {
+    padding: 16px;
+  }
+
+  .otp-card {
+    padding: 28px;
+    box-shadow: 6px 6px 0 var(--black);
+  }
+
+  .otp-card:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 7px 7px 0 var(--black);
+  }
+
+  .otp-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .email-display {
+    font-size: 12px;
+  }
+
+  .otp-form input[type="text"] {
+    font-size: 28px;
+    letter-spacing: 8px;
+    padding: 16px;
+  }
+
+  .timer-value {
+    font-size: 24px;
+  }
+
+  .timer-container {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .timer-icon {
+    font-size: 28px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 14px 24px;
+    font-size: 13px;
+  }
+
+  .help-text p {
+    font-size: 12px;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 360px) {
+  .otp-form input[type="text"] {
+    font-size: 24px;
+    letter-spacing: 6px;
+    padding: 14px;
+  }
+
+  .timer-value {
+    font-size: 20px;
+  }
+
+  .success-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+}

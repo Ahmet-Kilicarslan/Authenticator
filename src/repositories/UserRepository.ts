@@ -104,11 +104,17 @@ class UserRepository {
 
         const result = await pool.query(sql, [email]);
 
-        return result.rows[0].exists;
-
+        return result.rowCount !== null && result.rowCount > 0;
     }
 
-    
+    async resetPassword(password:string,email:string): Promise<void> {
+
+        const sql = `UPDATE users SET password = $1 WHERE email = $2`
+
+        const result = await pool.query(sql, [password, email]);
+
+        return result.rows[0];
+    }
 
 
 }

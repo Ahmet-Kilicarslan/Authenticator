@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 declare class AuthenticationController {
     private authService;
+    private emailVerificationService;
     constructor();
     register(req: Request, res: Response): Promise<void>;
     login(req: Request, res: Response): Promise<void>;

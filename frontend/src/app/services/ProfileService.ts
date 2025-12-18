@@ -42,9 +42,6 @@ export default class ProfileService {
       switch (error.status) {
         case 401:
           errorMessage = 'Not authenticated. Please login.';
-          // Remove invalid token
-          localStorage.removeItem('authToken');
-          // Redirect to login
           this.router.navigate(['/Login']);
           break;
         case 404:

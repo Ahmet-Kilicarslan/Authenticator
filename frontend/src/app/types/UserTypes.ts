@@ -36,3 +36,8 @@ export interface ProfileResponse {
   message: string;
   user: UserData;
 }
+
+export interface EmailVerificationRequest {
+  email:string;
+  otp:string;
+}

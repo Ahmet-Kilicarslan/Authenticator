@@ -57,20 +57,11 @@ export default class RegisterComponent {
           console.log("Registration successful user:", data.user);
         }
         this.success = true;
+        localStorage.setItem('pendingVerificationEmail', this.registerData.email);
 
         setTimeout(() => {
-          this.router.navigate(['/Login']).then((success) => {
-
-            if (success) {
-              console.log("Navigated to Login successfully");
-
-            } else console.error("Navigation failed");
-
-          }).catch((error) => {
-
-            console.error("Navigation error:", error);
-          });
-        }, 2000);
+          this.router.navigate(['/Otp']);
+        }, 1000);
 
 
       },

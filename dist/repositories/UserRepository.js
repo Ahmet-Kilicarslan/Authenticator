@@ -75,7 +75,12 @@ class UserRepository {
                      updated_at = CURRENT_TIMESTAMP
                      WHERE email = $1 `;
         const result = await pool.query(sql, [email]);
-        return result.rows[0].exists;
+        return result.rowCount !== null && result.rowCount > 0;
+    }
+    async resetPassword(password, email) {
+        const sql = `UPDATE users SET password = $1 WHERE email = $2`;
+        const result = await pool.query(sql, [password, email]);
+        return result.rows[0];
     }
 }
 export default UserRepository;

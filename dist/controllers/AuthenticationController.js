@@ -2,14 +2,22 @@ import UserRepository from "../repositories/UserRepository.js";
 import AuthenticationService from "../services/AuthenticationService.js";
 import SessionService from "../services/SessionService.js";
 import PasswordService from "../services/PasswordService.js";
+import EmailVerificationService from "../services/EmailVerificationService.js";
+import OTPService from "../services/OTPService.js";
+import { emailProvider } from "../providers/EmailProviderFactory.js";
+import redisClient from "../config/redis.js";
 class AuthenticationController {
     authService;
+    emailVerificationService;
     constructor() {
-        // Initialize services
+        // Initialize authentication services
         const userRepository = new UserRepository();
         const sessionService = new SessionService();
         const passwordService = new PasswordService();
         this.authService = new AuthenticationService(userRepository, sessionService, passwordService);
+        // ✅ Initialize email verification service
+        const otpService = new OTPService(redisClient);
+        this.emailVerificationService = new EmailVerificationService(userRepository, otpService, emailProvider);
     }
     async register(req, res) {
         try {
@@ -22,15 +30,28 @@ class AuthenticationController {
             }
             const registerData = { username, email, password };
             const result = await this.authService.register(registerData);
-            // Cookie creation here
+            let emailSent = true;
+            try {
+                await this.emailVerificationService.sendVerificationEmail(email);
+                console.log(`✅ Verification email sent to ${email}`);
+            }
+            catch (emailError) {
+                emailSent = false;
+                console.error('❌ Failed to send verification email:', emailError);
+            }
+            // Cookie creation
             res.cookie('authToken', result.token, {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'lax',
                 maxAge: 24 * 60 * 60 * 1000 //24 hours
             });
+            // ✅ Return response with emailSent flag
             res.status(200).json({
-                message: " User registered successfully",
+                message: emailSent
+                    ? "User registered successfully"
+                    : "User registered but verification email failed to send",
+                emailSent: emailSent, // ← Frontend checks this!
                 user: {
                     id: result.user.id,
                     email: result.user.email,
@@ -46,11 +67,12 @@ class AuthenticationController {
                     message: error.message
                 });
             }
-            else
+            else {
                 res.status(500).json({
                     error: 'Internal server error',
                     message: error.message
                 });
+            }
         }
     }
     async login(req, res) {
@@ -71,7 +93,7 @@ class AuthenticationController {
                 maxAge: 24 * 60 * 60 * 1000
             });
             res.status(200).json({
-                message: " User logged in successfully",
+                message: "User logged in successfully",
                 user: {
                     id: result.user.id,
                     email: result.user.email,
@@ -87,11 +109,12 @@ class AuthenticationController {
                     message: error.message
                 });
             }
-            else
+            else {
                 res.status(500).json({
                     error: 'Internal server error',
                     message: error.message
                 });
+            }
         }
     }
     async logout(req, res) {
@@ -115,11 +138,12 @@ class AuthenticationController {
                     message: error.message,
                 });
             }
-            else
+            else {
                 res.status(500).json({
                     error: 'Internal Server Error',
                     message: error.message,
                 });
+            }
         }
     }
 }

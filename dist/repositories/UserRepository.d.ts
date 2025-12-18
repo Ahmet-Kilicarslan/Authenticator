@@ -7,6 +7,7 @@ declare class UserRepository {
     usernameExists(username: string): Promise<boolean>;
     getUserWithProfilePicById(id: number): Promise<UserDTO | null>;
     markAsVerified(email: string): Promise<boolean>;
+    resetPassword(password: string, email: string): Promise<void>;
 }
 export default UserRepository;
 //# sourceMappingURL=UserRepository.d.ts.map

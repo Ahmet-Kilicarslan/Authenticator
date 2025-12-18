@@ -2,6 +2,10 @@ import UserRepository from "../repositories/UserRepository.js";
 import AuthenticationService from "../services/AuthenticationService.js";
 import SessionService from "../services/SessionService.js";
 import PasswordService from "../services/PasswordService.js";
+import EmailVerificationService from "../services/EmailVerificationService.js";
+import OTPService from "../services/OTPService.js";
+import { emailProvider } from "../providers/EmailProviderFactory.js";
+import redisClient from "../config/redis.js";
 import type {RegisterDTO, LoginDTO} from "../types";
 import type {Request, Response} from "express";
 
@@ -9,9 +13,10 @@ import type {Request, Response} from "express";
 class AuthenticationController {
 
     private authService: AuthenticationService;
+    private emailVerificationService: EmailVerificationService;
 
     constructor() {
-        // Initialize services
+        // Initialize authentication services
         const userRepository = new UserRepository();
         const sessionService = new SessionService();
         const passwordService = new PasswordService();
@@ -20,6 +25,14 @@ class AuthenticationController {
             userRepository,
             sessionService,
             passwordService
+        );
+
+        // ✅ Initialize email verification service
+        const otpService = new OTPService(redisClient);
+        this.emailVerificationService = new EmailVerificationService(
+            userRepository,
+            otpService,
+            emailProvider
         );
     }
 
@@ -37,11 +50,21 @@ class AuthenticationController {
             }
 
             const registerData: RegisterDTO = {username, email, password};
+
+
             const result = await this.authService.register(registerData);
 
 
+            let emailSent = true;
+            try {
+                await this.emailVerificationService.sendVerificationEmail(email);
+                console.log(`✅ Verification email sent to ${email}`);
+            } catch (emailError: any) {
+                emailSent = false;
+                console.error('❌ Failed to send verification email:', emailError);
+            }
 
-            // Cookie creation here
+            // Cookie creation
             res.cookie('authToken', result.token, {
                 httpOnly: true,
                 secure: false,
@@ -49,43 +72,41 @@ class AuthenticationController {
                 maxAge: 24 * 60 * 60 * 1000 //24 hours
             });
 
+            // ✅ Return response with emailSent flag
             res.status(200).json({
-                message: " User registered successfully",
-
+                message: emailSent
+                    ? "User registered successfully"
+                    : "User registered but verification email failed to send",
+                emailSent: emailSent,  // ← Frontend checks this!
                 user: {
                     id: result.user.id,
                     email: result.user.email,
                     username: result.user.username,
-
                 },
-            })
-
+            });
 
         } catch (error: any) {
 
             console.error('❌ Registration error:', error);
-
 
             if (error instanceof Error) {
                 res.status(401).json({
                     error: 'Registration failed',
                     message: error.message
                 })
-            } else res.status(500).json({
-                error: 'Internal server error',
-                message: error.message
-            })
+            } else {
+                res.status(500).json({
+                    error: 'Internal server error',
+                    message: error.message
+                })
+            }
         }
-
-
     }
 
     async login(req: Request, res: Response): Promise<void> {
 
-
         try {
             const {email, password} = req.body as LoginDTO;
-
 
             if (!email || !password) {
                 res.status(400).json({
@@ -104,33 +125,30 @@ class AuthenticationController {
                 maxAge: 24 * 60 * 60 * 1000
             });
 
-
             res.status(200).json({
-                message: " User logged in successfully",
+                message: "User logged in successfully",
                 user: {
                     id: result.user.id,
                     email: result.user.email,
                     username: result.user.username,
-
                 },
-            })
+            });
 
         } catch (error: any) {
             console.error('❌ Login error:', error);
-
 
             if (error instanceof Error) {
                 res.status(401).json({
                     error: 'login failed',
                     message: error.message
                 })
-            } else res.status(500).json({
-                error: 'Internal server error',
-                message: error.message
-            })
+            } else {
+                res.status(500).json({
+                    error: 'Internal server error',
+                    message: error.message
+                })
+            }
         }
-
-
     }
 
     async logout(req: Request, res: Response): Promise<void> {
@@ -160,17 +178,14 @@ class AuthenticationController {
                     error: 'Logout failed',
                     message: error.message,
                 })
-            } else res.status(500).json({
-                error: 'Internal Server Error',
-                message: error.message,
-            })
-
-
+            } else {
+                res.status(500).json({
+                    error: 'Internal Server Error',
+                    message: error.message,
+                })
+            }
         }
-
     }
-
-
 }
 
 export default AuthenticationController;
