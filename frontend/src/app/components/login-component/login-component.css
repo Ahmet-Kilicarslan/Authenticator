@@ -19,7 +19,7 @@
   width: 100%;
   background: var(--pureWhite);
   border: 3px solid var(--black);
-  border-radius: 0;
+  border-radius: 12px;
   padding: 40px;
   box-shadow: 8px 8px 0 var(--black);
   transition: all 0.2s ease;
@@ -188,11 +188,96 @@
   border-bottom-color: var(--black);
 }
 
-/* Social Login - Container for OAuth buttons */
+
+/* ===============================
+   BRUTALIST SOCIAL LOGIN BUTTONS
+   =============================== */
+
+/* Social Login Container - Centers the square buttons */
 .social-login {
   display: flex;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
   margin-bottom: 24px;
+}
+
+/* Social Button - Square brutalist style */
+.social-btn {
+  /* Fixed square dimensions */
+  width: 56px;
+  height: 56px;
+
+  /* Brutalist border and background */
+  background: var(--pureWhite);
+  border: 3px solid var(--black);
+  border-radius: 0; /* No rounded corners */
+
+  /* Center the icon/letter */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Cursor and font */
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--black);
+
+  /* Smooth transitions */
+  transition: all 0.2s ease;
+
+  /* Remove default button styles */
+  padding: 0;
+  outline: none;
+}
+
+/* Hover Effect - The characteristic shadow shift */
+.social-btn:hover {
+  /* Move button up and left */
+  transform: translate(-2px, -2px);
+
+  /* Add shadow that appears to "grow" */
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+/* Active/Pressed State */
+.social-btn:active {
+  /* Snap back to original position */
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+/* Focus State - For keyboard navigation */
+.social-btn:focus {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
+}
+
+/* Icon Container - Ensures consistent sizing */
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+}
+
+/* SVG styling - For icon buttons */
+.social-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  fill: var(--black);
+  transition: fill 0.2s ease;
+}
+
+/* Optional: Different hover colors for each platform */
+.social-btn:hover .social-icon svg {
+  /* Keep black for brutalist style, or customize per platform:
+  fill: var(--black);
+  */
 }
 
 /* Signup Link - Bottom section */
@@ -300,7 +385,15 @@
     gap: 16px;
   }
 
-  .social-login {
-    flex-direction: column;
+  /* Slightly smaller social buttons on mobile */
+  .social-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .social-icon svg {
+    width: 18px;
+    height: 18px;
   }
 }

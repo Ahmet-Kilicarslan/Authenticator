@@ -1,5 +1,5 @@
 import express from "express";
-import ProfileController from "../controllers/ProfileController";
+import ProfileController from "../controllers/ProfileController.js";
 const router = express.Router();
 const profileController = new ProfileController();
 router.get("/getProfile", async (req, res) => {

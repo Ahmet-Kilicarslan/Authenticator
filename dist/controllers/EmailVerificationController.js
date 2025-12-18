@@ -45,10 +45,11 @@ class EmailVerificationController {
                     error: "Missing valid email",
                     message: "Email is required",
                 });
+                return;
             }
             await this.emailVerificationService.sendVerificationEmail(email);
             res.status(200).json({
-                message: `Otp sent to : ${{ email }}`,
+                message: `Otp sent to : ${email}`,
             });
         }
         catch (error) {

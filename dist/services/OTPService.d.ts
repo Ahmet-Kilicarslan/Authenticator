@@ -5,6 +5,7 @@ declare class OTPService {
     private RATE_LIMIT_WINDOW;
     constructor(redisClient: RedisClient);
     sendOTPEmail(email: string, otp: string): Promise<void>;
+    sendOTPEmailViaBrevo(email: string, otp: string): Promise<void>;
     private checkRateLimit;
     generateAndStoreOTP(email: string, purpose: string): Promise<string>;
     verifyOTP(email: string, otp: string, purpose: string): Promise<boolean>;

@@ -57,7 +57,7 @@ class EmailVerificationController {
         }
 
     }
-    async resendVerification(req: Request, res: Response): Promise<void> {
+    async sendVerification(req: Request, res: Response): Promise<void> {
         try{
 
             const {email} = req.body;

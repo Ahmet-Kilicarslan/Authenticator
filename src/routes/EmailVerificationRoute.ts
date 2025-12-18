@@ -1,5 +1,5 @@
 import express from 'express';
-import EmailVerificationController from '../controllers/EmailVerificationController';
+import EmailVerificationController from '../controllers/EmailVerificationController.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.post("/verify-email", async (req, res) => {
 })
 
 router.post("/resend-verification", async (req, res) => {
-    return emailVerificationController.resendVerification(req,res);
+    return emailVerificationController.sendVerification(req,res);
 })
 
 
