@@ -1,46 +1,35 @@
-
-import type UserRepository from '../repositories/UserRepository.js';
 import type OTPService from '../services/OTPService.js';
 import type IEmailProvider from '../providers/IEmailProvider.js';
+
 class EmailVerificationService {
 
-    private readonly OTP_PURPOSE = "email_verification";
+    private readonly OTP_PURPOSE = 'email_verification';
+    private otpService: OTPService;
     private emailProvider: IEmailProvider;
 
-    constructor(private  userRepository: UserRepository,
-                private  OTPService: OTPService,
-                emailProvider: IEmailProvider) {
+    constructor(otpService: OTPService, emailProvider: IEmailProvider) {
+        this.otpService = otpService;
         this.emailProvider = emailProvider;
     }
 
     async sendVerificationEmail(email: string): Promise<void> {
 
-        const user = await this.userRepository.getByEmail(email);
-        if (!user) {
-            throw new Error('User not found');
-        }
-        if(user.isVerified){
-            throw new Error('User already verified');
-        }
 
-        const otp = await this.OTPService.generateAndStoreOTP(email,this.OTP_PURPOSE);
 
-        const result =await this.emailProvider.sendOtpEmail(email,otp);
+        const otp = await this.otpService.generateAndStoreOTP(email, this.OTP_PURPOSE);
 
-        console.log(result);
+        await this.emailProvider.sendOtpEmail(email, otp);
 
 
     }
-    async verifyOTP(email: string,otp: string): Promise<boolean> {
 
-        const isValid = await this.OTPService.verifyOTP(email,otp,this.OTP_PURPOSE);
+    async verifyOTP(email: string, otp: string): Promise<boolean> {
 
-        if(!isValid){
-            return isValid;
+        const isValid = await this.otpService.verifyOTP(email, otp, this.OTP_PURPOSE);
+
+        if (isValid) {
+            await this.otpService.invalidateOTP(email, this.OTP_PURPOSE);
         }
-        await this.userRepository.markAsVerified(email);
-
-        await this.OTPService.invalidateOTP(email,this.OTP_PURPOSE);
 
         return isValid;
 
@@ -48,4 +37,6 @@ class EmailVerificationService {
     }
 
 
-}export default EmailVerificationService;
+}
+
+export default EmailVerificationService;

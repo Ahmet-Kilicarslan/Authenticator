@@ -9,6 +9,10 @@ router.post("/register", async (req, res) => {
     return authController.register(req, res)
 });
 
+router.post('/verify-email', async (req, res) => {
+    return authController.verifyEmail(req, res);
+});
+
 router.post("/login", async (req, res) => {
     return authController.login(req, res)
 });

@@ -2,20 +2,24 @@ import type {RegisterDTO, User, LoginDTO} from '../types';
 import type UserRepository from "../repositories/UserRepository.js";
 import type SessionService from "./SessionService.js";
 import type PasswordService from "./PasswordService.js";
-
+import type PendingRegistrationService from './PendingRegistrationService.js';
+import type EmailVerificationService from './EmailVerificationService.js';
 
 class AuthenticationService {
 
 
     constructor(private UserRepository: UserRepository,
                 private sessionService: SessionService,
-                private passwordService: PasswordService) {
+                private passwordService: PasswordService,
+                private emailVerificationService: EmailVerificationService,
+                private pendingRegistrationService: PendingRegistrationService,) {
 
     }
 
 
-    async register(registerDto: RegisterDTO): Promise<{ token: string, user: User }> {
+    async initiateRegistration(registerDto: RegisterDTO): Promise<void> {
 
+        //===================VALIDATION=========================================*
         const emailExists = await this.UserRepository.emailExists(registerDto.email);
         if (emailExists) {
             throw new Error("Email already exists");
@@ -31,60 +35,97 @@ class AuthenticationService {
             throw new Error(`Weak password: ${isPassword.errors.join(', ')}`);
         }
 
+
         const hashedPassword = await this.passwordService.hashPassword(registerDto.password);
 
-        const user = await this.UserRepository.create({
-                username: registerDto.username,
-                email: registerDto.email,
-                password: hashedPassword
-            }
-        );
+        //store pending registration data and wait for email verification
+        await this.pendingRegistrationService.storePending({
+            username: registerDto.username,
+            email: registerDto.email,
+            hashedPassword: hashedPassword,
+            createdAt: new Date().toISOString()
+        });
 
+        await this.emailVerificationService.sendVerificationEmail(registerDto.email);
+
+    }
+
+    async completeRegistration(email: string, otp: string): Promise<{ token: string, user: User }> {
+
+        const isValid = await this.emailVerificationService.verifyOTP(email, otp);
+
+        if (!isValid) {
+            throw new Error("Invalid or expired OTP");
+        }
+
+
+        // get pending registration data from redis
+        const pendingData = await this.pendingRegistrationService.getPending(email);
+
+        if (!pendingData) {
+
+            throw new Error('Registration expired. Please register again.');
+        }
+
+        //  create user in database (is_verified = false by default!)
+        const user = await this.UserRepository.create({
+            username: pendingData.username,
+            email: pendingData.email,
+            password: pendingData.hashedPassword // Already hashed
+        });
+
+        // Mark as verified immediately
+        await this.UserRepository.markAsVerified(email);
+
+        // Create session token
         const token = await this.sessionService.createSession({
             userId: user.id,
             email: user.email,
             permissions: [],
             roles: []
-
         });
 
-        return {token, user};
+        // Clean up: Delete pending registration from Redis
+        await this.pendingRegistrationService.deletePending(email);
 
+        return {token, user};
 
     }
 
     async login(loginDto: LoginDTO): Promise<{ token: string, user: User }> {
-        try {
-            const message:string = "Invalid Credentials";
 
-            const user = await this.UserRepository.getByEmail(loginDto.email);
+        // Get user from database
+        const user = await this.UserRepository.getByEmail(loginDto.email);
 
-            if (!user) {
-                new Error(message);
-            }
-
-            const notNullUser: User = user as User;
-
-            const checkPassword = await this.passwordService.comparePassword(loginDto.password, notNullUser.password);
-
-            if (!checkPassword) {
-                new Error(message);
-            }
-
-            const token = await this.sessionService.createSession({
-                userId: notNullUser.id,
-                email: notNullUser.email,
-                permissions: [],
-                roles: []
-
-            });
-
-            return {token, user: notNullUser};
-
-
-        } catch (error) {
-            throw error;
+        if (!user) {
+            throw new Error('Invalid credentials');
         }
+
+        // Verify password
+        const passwordValid = await this.passwordService.comparePassword(
+            loginDto.password,
+            user.password
+        );
+
+        if (!passwordValid) {
+            throw new Error('Invalid credentials');
+        }
+
+        // Business rule: User must verify email before logging in
+        if (!user.isVerified) {
+            throw new Error('Please verify your email before logging in');
+        }
+
+        // Create session token
+        const token = await this.sessionService.createSession({
+            userId: user.id,
+            email: user.email,
+            permissions: [],
+            roles: []
+        });
+
+        return {token, user};
+
 
     }
 

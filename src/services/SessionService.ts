@@ -15,16 +15,17 @@ class sessionService {
 
     async createSession(sessionData: Omit<SessionData, 'createdAt' | 'lastActivity'>): Promise<string> {
         const token = this.generateToken();
+
         const fullSessionData: SessionData = {
             ...sessionData,
             createdAt: new Date().toISOString(),
             lastActivity: new Date().toISOString()
         };
 
-        await redisClient.setEx(//set with expiry time ---> setEx
+        await redisClient.set(
             `${this.SESSION_PREFIX}${token}`,
-            this.SESSION_EXPIRY,
-            JSON.stringify(fullSessionData)
+            JSON.stringify(fullSessionData),
+            {EX: this.SESSION_EXPIRY}
         );
         return token;
 
@@ -77,4 +78,4 @@ class sessionService {
 }
 
 
-export default  sessionService;
+export default sessionService;

@@ -1,20 +1,20 @@
-import type {RedisClientType} from 'redis';
-import type {RegisterDTO} from '../types'
+import type {RedisClient} from '../config/redis.js';
+import type {PendingRegistration} from '../types'
 
 
  class PendingRegistrationService {
 
-    private redisClient: RedisClientType;
+    private redisClient: RedisClient;
     private readonly PENDING_PREFIX = 'pending:registration:';
     private readonly EXPIRY = 900;
 
 
-    constructor( redisClient: RedisClientType) {
+    constructor( redisClient: RedisClient) {
         this.redisClient = redisClient;
     }
 
 
-    async storePendingRegistration(data:RegisterDTO): Promise<void> {
+    async storePending(data:PendingRegistration): Promise<void> {
         const key = `${this.PENDING_PREFIX}${data.email}`;
 
         await this.redisClient.set(
@@ -26,17 +26,17 @@ import type {RegisterDTO} from '../types'
     }
 
 
-    async getPendingRegistration(email:string): Promise<RegisterDTO | null> {
+    async getPending(email:string): Promise<PendingRegistration | null> {
         const key = `${this.PENDING_PREFIX}${email}`;
         const data = await this.redisClient.get(key);
 
         if(!data){
             return null;
         }
-        return  JSON.parse(data) as RegisterDTO;
+        return  JSON.parse(data) as PendingRegistration;
     }
 
-    async deletePendingRegistration(email:string): Promise<void> {
+    async deletePending(email:string): Promise<void> {
         const key = `${this.PENDING_PREFIX}${email}`;
         await this.redisClient.del(key);
 

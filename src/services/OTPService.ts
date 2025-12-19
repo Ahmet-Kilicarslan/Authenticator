@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import generateOTP from '../utils/otpGenerator.js';
 
-import type {RedisClient} from "../config/redis";
+import type {RedisClient} from '../config/redis.js';
 
 
 dotenv.config();
@@ -29,9 +29,7 @@ class OTPService {
 
         const exists = await this.redisClient.exists(rateLimitKey);
 
-        if (exists) {
-            return false
-        } else return true;
+       return exists === 0;//can proceed if not
 
 
     }
@@ -48,11 +46,11 @@ class OTPService {
 
         const otpKey = `otp:${purpose}:${email}`;
 
-        await this.redisClient.setEx(otpKey, this.OTP_EXPIRY, otp);
+        await this.redisClient.set(otpKey, otp, {EX:this.OTP_EXPIRY});
 
         const rateLimitKey = `otp:ratelimit:${purpose}:${email}`;
 
-        await this.redisClient.setEx(rateLimitKey, this.RATE_LIMIT_WINDOW, '1');
+        await this.redisClient.set(rateLimitKey ,'1',{EX:this.RATE_LIMIT_WINDOW});
 
         return otp;
 

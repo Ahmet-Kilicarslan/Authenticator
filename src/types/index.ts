@@ -15,6 +15,13 @@ export interface RegisterDTO{
     password:string;
 }
 
+export interface PendingRegistration {
+    username: string;
+    email: string;
+    hashedPassword: string;
+    createdAt: string;
+}
+
 export interface LoginDTO{
     email:string;
     password:string;
