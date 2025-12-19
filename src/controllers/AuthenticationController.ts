@@ -29,6 +29,8 @@ import {AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME} from '../config/cookie.js';
 class AuthenticationController {
 
     private authService: AuthenticationService;
+    private pendingRegistrationService: PendingRegistrationService;
+    private emailVerificationService: EmailVerificationService;
 
     constructor() {
 
@@ -37,20 +39,25 @@ class AuthenticationController {
         const sessionService = new SessionService();
         const passwordService = new PasswordService();
 
-        const pendingRegistrationService = new PendingRegistrationService(redisClient);
+
+
+        this.pendingRegistrationService = new PendingRegistrationService(redisClient);
+
         const otpService = new OTPService(redisClient);
-        const emailVerificationService = new EmailVerificationService(
+
+        this.emailVerificationService = new EmailVerificationService(
             otpService,
             emailProvider);
 
-        // Create authentication service with all dependencies
+        /** Create authentication service with all dependencies.
+             Services must be created to used !!  */
+
         this.authService = new AuthenticationService(
             userRepository,
             sessionService,
             passwordService,
-            emailVerificationService,
-            pendingRegistrationService
-
+            this.emailVerificationService,
+            this.pendingRegistrationService
         );
     }
 
@@ -179,6 +186,57 @@ class AuthenticationController {
                 });
             }
         }
+    }
+
+
+    async resendOTP(req: Request, res: Response): Promise<void> {
+
+        try {
+            const {email} = req.body;
+
+            if (!email) {
+                res.status(400).json({
+                    error: 'Missing fields',
+                    message: 'Email is required'
+                })
+            }
+
+            const checkPending = await this.pendingRegistrationService.exists(email);
+
+            if (!checkPending) {
+                res.status(400).json({
+                    error: 'Missing registration process',
+                    message: 'No pending registration '
+                })
+            }
+
+            await this.emailVerificationService.sendVerificationEmail(email);
+
+            res.status(200).json({
+                message: 'Verification email resent successfully',
+                email: email
+            });
+
+
+        } catch (error: any) {
+
+
+            console.error('❌ Resend OTP error:', error);
+
+            if (error.message.includes('wait before requesting')) {
+                res.status(429).json({
+                    error: 'Rate limit exceeded',
+                    message: 'Please wait 60 seconds before requesting another code'
+                });
+            } else {
+                res.status(500).json({
+                    error: 'Failed to resend code',
+                    message: 'An error occurred while resending verification code'
+                });
+            }
+        }
+
+
     }
 
     /**

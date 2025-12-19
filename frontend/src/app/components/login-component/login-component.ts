@@ -25,6 +25,7 @@ export default class LoginComponent {
 
   emailError: string = '';
   passwordError: string = '';
+  loginError: string = '';
 
   isLoginLoading: boolean = false;
   showPassword: boolean = false;
@@ -54,9 +55,33 @@ export default class LoginComponent {
       },
       error: (error:any) => {
         this.isLoginLoading = false;
+
+        this.handleLoginError(error);
+
         console.error(error);
       }
     })
+
+  }
+  clearLoginError() {
+    this.loginError = '';
+  }
+
+  handleLoginError(error:any): void {
+
+    this.clearLoginError();
+
+    if (error.error?.error === 'Invalid credentials') {
+      this.loginError = 'Invalid email or password. Please try again.';
+    } else if (error.error?.error === 'Email not verified') {
+      this.loginError = 'Please verify your email before logging in. Check your inbox for the verification code.';
+    } else if (error.status === 401) {
+      this.loginError = 'Invalid email or password. Please try again.';
+    } else if (error.status === 403) {
+      this.loginError = error.error?.message || 'Access denied. Please verify your email.';
+    } else {
+      this.loginError = 'Login failed. Please try again later.';
+    }
 
   }
 

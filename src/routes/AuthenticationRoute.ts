@@ -13,6 +13,10 @@ router.post('/verify-email', async (req, res) => {
     return authController.verifyEmail(req, res);
 });
 
+router.post("/resend-otp", async (req, res) => {
+    return authController.resendOTP(req, res);
+})
+
 router.post("/login", async (req, res) => {
     return authController.login(req, res)
 });

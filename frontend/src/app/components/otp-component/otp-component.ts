@@ -3,7 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
 import {interval, Subscription} from 'rxjs';
 import {EmailVerificationRequest} from '../../types/UserTypes';
-import VerificationService from '../../services/VerificationService';
+import AuthService from '../../services/AuthService.js';
 
 @Component({
   selector: 'app-otp-component',
@@ -38,11 +38,11 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private verificationService: VerificationService
+    private authService: AuthService,  // ✅ Only need authService
   ) {}
 
   ngOnInit(): void {
-    // ✅ Simply get email from localStorage
+    // Get email from localStorage
     this.request.email = localStorage.getItem('pendingVerificationEmail') || '';
 
     if (!this.request.email) {
@@ -52,7 +52,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('🔍 Verifying email:', this.request.email);
+    console.log('📧 Verifying email:', this.request.email);
 
     // Start the expiration timer
     this.startExpirationTimer();
@@ -80,10 +80,10 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.isVerifying = true;
     this.otpError = '';
 
-    console.log('📧 Verifying OTP for:', this.request.email);
+    console.log('🔧 Verifying OTP for:', this.request.email);
 
     // Call verification service
-    this.verificationService.verifyEmail(this.request).subscribe({
+    this.authService.verifyEmail(this.request).subscribe({
       next: (response: any) => {
         console.log('✅ Verification successful:', response);
         this.onVerificationSuccess();
@@ -112,7 +112,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
     // Redirect to login after 2 seconds
     setTimeout(() => {
-      this.router.navigate(['/login'], {
+      this.router.navigate(['/Login'], {
         queryParams: { verified: 'true' }
       });
     }, 2000);
@@ -125,15 +125,21 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.isVerifying = false;
     this.verificationSuccess = false;
 
-    // Handle different error types
-    if (error.status === 400) {
+    // Handle different error types from backend
+    if (error.error?.error === 'Invalid OTP') {
       this.otpError = 'Invalid or expired code';
+    } else if (error.error?.error === 'Registration expired') {
+      this.otpError = 'Registration expired. Please register again.';
+      // Auto-redirect to register after 3 seconds
+      setTimeout(() => {
+        this.router.navigate(['/Register']);
+      }, 3000);
     } else if (error.status === 404) {
-      this.otpError = 'User not found';
+      this.otpError = 'Registration not found. Please register again.';
     } else if (error.status === 429) {
       this.otpError = 'Too many attempts. Please try again later.';
     } else {
-      this.otpError = error.error?.message || error.message || 'Verification failed. Please try again.';
+      this.otpError = error.error?.message || 'Verification failed. Please try again.';
     }
 
     // Clear the input on error
@@ -152,10 +158,10 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.isResending = true;
     this.otpError = '';
 
-    console.log('📧 Resending verification email to:', this.request.email);
+    console.log('🔧 Resending verification email to:', this.request.email);
 
-    // Call resend service
-    this.verificationService.sendEmailVerification(this.request.email).subscribe({
+    // ✅ Call authService.resendOTP() instead of verificationService
+    this.authService.resendOTP(this.request.email).subscribe({
       next: (response: any) => {
         console.log('✅ Verification email resent:', response);
         this.onResendSuccess();
@@ -175,10 +181,13 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
     // Reset timer
     this.timerSubscription?.unsubscribe();
+    this.timeRemaining = 300;  // Reset to 5 minutes
     this.startExpirationTimer();
 
     // Reset resend cooldown
     this.resendCooldownSubscription?.unsubscribe();
+    this.resendCooldown = 60;
+    this.canResend = false;
     this.startResendCooldown();
 
     // Clear input
@@ -188,22 +197,34 @@ export default class OtpComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle resend failure
+   * Handle failed resend
    */
   private onResendFailure(error: any): void {
     this.isResending = false;
 
-    if (error.status === 429) {
-      this.otpError = 'Too many requests. Please wait before requesting another code.';
-    } else if (error.status === 404) {
-      this.otpError = 'User not found';
+    // Handle backend error responses
+    if (error.status === 429 || error.error?.error === 'Rate limit exceeded') {
+
+      this.otpError = 'Please wait 60 seconds before requesting another code';
+
+    } else if (error.status === 404 || error.error?.error === 'Registration not found') {
+
+      this.otpError = 'Registration expired. Please register again.';
+
+      setTimeout(() => {
+        this.router.navigate(['/Register']);
+
+        }, 3000);
+
     } else {
-      this.otpError = error.error?.message || error.message || 'Failed to resend code. Please try again.';
+
+      this.otpError = error.error?.message || 'Failed to resend code. Please try again.';
+
     }
   }
 
   /**
-   * Start countdown timer for OTP expiration (5 minutes)
+   * Start 5-minute expiration countdown
    */
   private startExpirationTimer(): void {
     this.timeRemaining = 300; // Reset to 5 minutes
@@ -220,7 +241,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Start cooldown before user can resend (60 seconds)
+   * Start 60-second resend cooldown
    */
   private startResendCooldown(): void {
     this.resendCooldown = 60;
@@ -237,7 +258,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Format time remaining as MM:SS
+   * Format time as MM:SS
    */
   get formattedTime(): string {
     const minutes = Math.floor(this.timeRemaining / 60);
@@ -276,6 +297,8 @@ export default class OtpComponent implements OnInit, OnDestroy {
    * Navigate back to registration
    */
   goBack(): void {
-    this.router.navigate(['/register']);
+    // Clean up before leaving
+    localStorage.removeItem('pendingVerificationEmail');
+    this.router.navigate(['/Register']);
   }
 }

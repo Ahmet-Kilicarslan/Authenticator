@@ -4,12 +4,9 @@ import type IEmailProvider from '../providers/IEmailProvider.js';
 class EmailVerificationService {
 
     private readonly OTP_PURPOSE = 'email_verification';
-    private otpService: OTPService;
-    private emailProvider: IEmailProvider;
 
-    constructor(otpService: OTPService, emailProvider: IEmailProvider) {
-        this.otpService = otpService;
-        this.emailProvider = emailProvider;
+    constructor(private otpService:OTPService,
+                private emailProvider:IEmailProvider) {
     }
 
     async sendVerificationEmail(email: string): Promise<void> {

@@ -4,17 +4,16 @@ import type {PendingRegistration} from '../types'
 
  class PendingRegistrationService {
 
-    private redisClient: RedisClient;
+
     private readonly PENDING_PREFIX = 'pending:registration:';
     private readonly EXPIRY = 900;
 
 
-    constructor( redisClient: RedisClient) {
-        this.redisClient = redisClient;
-    }
+     constructor(private redisClient: RedisClient) {}
 
 
-    async storePending(data:PendingRegistration): Promise<void> {
+
+     async storePending(data:PendingRegistration): Promise<void> {
         const key = `${this.PENDING_PREFIX}${data.email}`;
 
         await this.redisClient.set(

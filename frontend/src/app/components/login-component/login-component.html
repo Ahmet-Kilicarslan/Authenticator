@@ -8,6 +8,21 @@
       <p>Enter your credentials</p>
     </div>
 
+    @if (loginError) {
+      <div class="alert alert-error">
+        <div class="alert-icon">⚠</div>
+        <div class="alert-content">
+          <p class="alert-message">{{ loginError }}</p>
+        </div>
+        <button type="button"
+                class="alert-close"
+                (click)="clearLoginError()"
+                aria-label="Close alert">
+          ×
+        </button>
+      </div>
+    }
+
 
     <form class="login-form" (ngSubmit)="handleLogin()" novalidate>
 
@@ -44,22 +59,28 @@
         <span class="error-message" [class.show]="passwordError">{{ passwordError }}</span>
       </div>
 
-      <!---------------------------2FA----------------------------------------------->
+
       <div class="form-options">
-        <div class="checkbox-wrapper">
+
+        <!---------------------------2FA----------------------------------------------->
+        <label class="checkbox-wrapper">
           <input type="checkbox"
                  id="2fa"
                  name="2fa"
                  [(ngModel)]="use2fa">
-          <label for="remember" class="checkbox-label">
-            <div class="checkbox-box"></div>
+          <span class="checkbox-label">
+            <span class="checkbox-box"></span>
             <span>Use 2FA</span>
-          </label>
-        </div>
+          </span>
+        </label>
 
+
+        <!--------------------------------Forgot Password?---------------------------->
         <a href="#" class="forgot-link">Forgot password?</a>
       </div>
 
+
+      <!----------------------------Login--------------------------------------->
       <button type="submit" class="btn-primary" [class.loading]="isLoginLoading">
         <span class="btn-text">SIGN IN</span>
         <div class="btn-loader">

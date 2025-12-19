@@ -8,6 +8,9 @@ import type EmailVerificationService from './EmailVerificationService.js';
 class AuthenticationService {
 
 
+
+    /**   will act as orchestrator for services */
+
     constructor(private UserRepository: UserRepository,
                 private sessionService: SessionService,
                 private passwordService: PasswordService,
@@ -15,6 +18,9 @@ class AuthenticationService {
                 private pendingRegistrationService: PendingRegistrationService,) {
 
     }
+
+
+
 
 
     async initiateRegistration(registerDto: RegisterDTO): Promise<void> {
@@ -49,6 +55,13 @@ class AuthenticationService {
         await this.emailVerificationService.sendVerificationEmail(registerDto.email);
 
     }
+
+    async resendVerificationEmail(email: string): Promise<void> {
+
+        await this.emailVerificationService.sendVerificationEmail(email);
+
+    }
+
 
     async completeRegistration(email: string, otp: string): Promise<{ token: string, user: User }> {
 

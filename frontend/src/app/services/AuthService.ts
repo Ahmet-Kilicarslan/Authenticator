@@ -1,4 +1,4 @@
-import {RegisterRequest, LoginRequest, LoginResponse} from '../types/UserTypes';
+import {RegisterRequest, LoginRequest, LoginResponse, EmailVerificationRequest} from '../types/UserTypes';
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
@@ -45,13 +45,38 @@ export default class AuthService {
     ).pipe(
       tap((response: LoginResponse) => {
 
-        console.log('Registration successful', response);
+        console.log('Registration initiated', response);
 
 
       }), catchError((error: any) => {
         return throwError(() => error.message);
       })
     )
+  }
+
+  verifyEmail(request: EmailVerificationRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/verify-email`, request).pipe(
+      tap((response: any) => {
+        console.log("Email verified",response);
+      }),
+      catchError((error: any) => {
+        return throwError(() => error.message);
+      })
+    )
+
+
+  }
+
+  resendOTP(email:string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/resend-otp`, email).pipe(
+      tap((response: any) => {
+        console.log("Email resend",response);
+      }),catchError((error:any)=>{
+        return throwError(() => error.message);
+      })
+    )
+
+
   }
 
 

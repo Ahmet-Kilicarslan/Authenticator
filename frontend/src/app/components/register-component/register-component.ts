@@ -43,8 +43,10 @@ export default class RegisterComponent {
 
   handleRegister() {
     this.isRegisterLoading = true;
+    this.clearErrors();
 
     if (!this.validateRegister()) {
+      this.isRegisterLoading = false;
       return;
 
     }
@@ -57,6 +59,7 @@ export default class RegisterComponent {
           console.log("Registration successful user:", data.user);
         }
         this.success = true;
+
         localStorage.setItem('pendingVerificationEmail', this.registerData.email);
 
         setTimeout(() => {
@@ -75,6 +78,8 @@ export default class RegisterComponent {
   }
 
   private validateRegister(): boolean {
+    this.clearErrors();
+
     if (!this.registerData.username) {
       this.usernameError = 'Username is required';
       return false;
@@ -91,6 +96,12 @@ export default class RegisterComponent {
     return true;
 
   };
+
+  clearErrors(): void {
+    this.emailError = '';
+    this.passwordError = '';
+    this.usernameError = '';
+  }
 
   togglePassword() {
     this.showPassword = !this.showPassword;

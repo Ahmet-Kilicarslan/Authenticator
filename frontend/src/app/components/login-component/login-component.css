@@ -74,6 +74,81 @@
   text-transform: uppercase;
 }
 
+/* alert */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 3px solid var(--black);
+  background: var(--pureWhite);
+  box-shadow: 4px 4px 0 var(--black);
+  animation: alertSlideIn 0.3s ease-out;
+}
+
+@keyframes alertSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-error {
+  border-color: #d32f2f;
+  background: #ffebee;
+}
+
+.alert-error .alert-icon {
+  color: #d32f2f;
+}
+
+.alert-icon {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-message {
+  margin: 0;
+  color: var(--black);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.alert-close {
+  background: transparent;
+  border: none;
+  color: var(--black);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.alert-close:hover {
+  transform: scale(1.2);
+  opacity: 0.7;
+}
+
 /* Password Toggle - Show/Hide button inside password field */
 .password-wrapper {
   display: flex;
@@ -116,10 +191,15 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+  user-select: none;
 }
 
 .checkbox-wrapper input[type="checkbox"] {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
 }
 
 .checkbox-label {
@@ -127,7 +207,6 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  user-select: none;
   font-size: 14px;
   font-weight: 600;
   color: var(--black);
@@ -140,18 +219,17 @@
   background: var(--pureWhite);
   position: relative;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.checkbox-wrapper input[type="checkbox"]:checked + .checkbox-label .checkbox-box {
+.checkbox-wrapper input[type="checkbox"]:checked ~ .checkbox-label .checkbox-box {
   background: var(--black);
 }
 
 .checkbox-box::after {
   content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   color: var(--pureWhite);
   font-size: 10px;
   font-weight: 900;
@@ -159,7 +237,7 @@
   transition: opacity 0.2s ease;
 }
 
-.checkbox-wrapper input[type="checkbox"]:checked + .checkbox-label .checkbox-box::after {
+.checkbox-wrapper input[type="checkbox"]:checked ~ .checkbox-label .checkbox-box::after {
   opacity: 1;
 }
 

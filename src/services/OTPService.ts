@@ -9,18 +9,11 @@ dotenv.config();
 class OTPService {
 
 
-
-    private redisClient: RedisClient;
-
     private OTP_EXPIRY: number = 300;
     private RATE_LIMIT_WINDOW: number = 60;
 
-    constructor(redisClient: RedisClient) {
-        this.redisClient = redisClient;
-
+    constructor(private redisClient: RedisClient) {
     }
-
-
 
 
     private async checkRateLimit(email: string, purpose: string): Promise<boolean> {
@@ -29,7 +22,7 @@ class OTPService {
 
         const exists = await this.redisClient.exists(rateLimitKey);
 
-       return exists === 0;//can proceed if not
+        return exists === 0;//can proceed if not
 
 
     }
@@ -46,11 +39,11 @@ class OTPService {
 
         const otpKey = `otp:${purpose}:${email}`;
 
-        await this.redisClient.set(otpKey, otp, {EX:this.OTP_EXPIRY});
+        await this.redisClient.set(otpKey, otp, {EX: this.OTP_EXPIRY});
 
         const rateLimitKey = `otp:ratelimit:${purpose}:${email}`;
 
-        await this.redisClient.set(rateLimitKey ,'1',{EX:this.RATE_LIMIT_WINDOW});
+        await this.redisClient.set(rateLimitKey, '1', {EX: this.RATE_LIMIT_WINDOW});
 
         return otp;
 
@@ -74,7 +67,6 @@ class OTPService {
         const otpKey = `otp:${purpose}:${email}`;
 
         await this.redisClient.del(otpKey);
-
 
 
     }

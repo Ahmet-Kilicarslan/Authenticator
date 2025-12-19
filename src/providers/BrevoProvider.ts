@@ -26,7 +26,7 @@ export default class BrevoProvider implements IEmailProvider {
 
         try{
             const sendSmtpEmail: brevo.SendSmtpEmail = {
-                subject: 'Verify Your Email - OTP Code',
+                subject: 'Verify Your Email ',
                 to: [{ email: email }],
                 sender: {
                     name: this.fromName,
