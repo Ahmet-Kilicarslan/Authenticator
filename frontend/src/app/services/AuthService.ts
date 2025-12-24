@@ -18,6 +18,35 @@ export default class AuthService {
   }
 
 
+
+  requestPasswordReset(email:string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`, {email},{withCredentials:true}).pipe(
+      tap((response:any)=>{
+        console.log('✅ Reset email request sent:', response.message);
+      }),catchError((error:any)=>{
+
+        return throwError(() => error.message);})
+    )
+
+  }
+
+  resetPassword(token:string,newPassword:string):Observable<any> {
+
+    return this.http.post<any>(`${this.apiUrl}/reset-password`,{token,newPassword},{withCredentials:true}).pipe(
+      tap((response:any)=>{
+
+        console.log('✅ Password reset successful:', response.message);
+
+      }),catchError((error:any)=>{
+
+        return throwError(() => error.message);
+      })
+    )
+
+
+  }
+
+
   login(credentials: LoginRequest): Observable<LoginResponse> {
 
     return this.http.post<LoginResponse>(
