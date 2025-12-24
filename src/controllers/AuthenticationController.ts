@@ -330,6 +330,68 @@ class AuthenticationController {
             });
         }
     }
+
+    //  Request password reset
+    async forgotPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const { email } = req.body;
+
+            if (!email) {
+                res.status(400).json({
+                    error: 'Email is required'
+                });
+                return;
+            }
+
+            await this.authService.requestPasswordReset(email);
+
+            // Always return success (security)
+            res.status(200).json({
+                message: 'If that email exists, a reset link has been sent'
+            });
+
+        } catch (error) {
+            console.error('❌ Forgot password error:', error);
+
+            res.status(500).json({
+                error: 'Failed to process request'
+            });
+        }
+    }
+
+// Reset password
+    async resetPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const { token, newPassword } = req.body;
+
+            if (!token || !newPassword) {
+                res.status(400).json({
+                    error: 'Token and new password are required'
+                });
+                return;
+            }
+
+            await this.authService.resetPassword(token, newPassword);
+
+            res.status(200).json({
+                message: 'Password reset successful. Please login with your new password.'
+            });
+
+        } catch (error) {
+            console.error('❌ Reset password error:', error);
+
+            if (error instanceof Error) {
+                res.status(400).json({
+                    error: 'Password reset failed',
+                    message: error.message
+                });
+            } else {
+                res.status(500).json({
+                    error: 'Internal server error'
+                });
+            }
+        }
+    }
 }
 
 export default AuthenticationController;

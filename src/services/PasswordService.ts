@@ -17,7 +17,7 @@ class PasswordService {
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
         await redisClient.set(
-            `password_reset:${hashedToken}`,
+            `${this.RESET_PREFIX}${hashedToken}`,
             userId.toString(),
             {
                 EX: 900

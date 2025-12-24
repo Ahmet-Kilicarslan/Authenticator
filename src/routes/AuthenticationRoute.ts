@@ -26,4 +26,12 @@ router.post("/logout", async (req, res) => {
     return authController.logout(req, res)
 });
 
+router.post("/forgot-password", async (req, res) => {
+    return authController.forgotPassword(req, res)
+})
+
+router.post("/reset-password", async (req, res) => {
+    return authController.resetPassword(req, res)
+})
+
 export default router;

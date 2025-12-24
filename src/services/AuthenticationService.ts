@@ -148,6 +148,59 @@ class AuthenticationService {
     }
 
 
+    async requestPasswordReset(email: string): Promise<void> {
+
+        try{
+
+            const user = await this.UserRepository.getByEmail(email);
+
+            if (!user) {
+                 return;
+            }
+
+            const resetLink = await this.passwordService.generateResetLink(user.id);
+
+
+            await this.emailVerificationService.sendPasswordResetEmail(email, resetLink);
+
+
+        }catch(error){
+            console.error('Failed to send password reset:', error);
+            throw new Error('Failed to process password reset request');
+        }
+
+
+
+
+    }
+
+    async resetPassword(token: string,newPassword:string): Promise<void> {
+        try{
+            const userId = await this.passwordService.validateResetToken(token);
+            if (!userId) {
+                throw new Error('Invalid  or expired token');
+            }
+
+            const validPassword = await this.passwordService.validateStrength(newPassword);
+
+            if (!validPassword) {
+                throw new Error('weak password');
+            }
+
+            const hashedPassword = await this.passwordService.hashPassword(newPassword);
+
+            await this.UserRepository.resetPassword(hashedPassword,userId);
+
+            await this.passwordService.invalidateResetToken(token);
+
+
+        }catch(error){
+            console.error('Failed to reset password:', error);
+            throw error;
+        }
+    }
+
+
 }
 
 

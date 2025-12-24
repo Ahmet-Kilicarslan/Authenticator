@@ -33,6 +33,12 @@ class EmailVerificationService {
 
     }
 
+    async sendPasswordResetEmail(email: string,resetLink:string): Promise<void> {
+
+        await this.emailProvider.sendPasswordResetEmail(email, resetLink);
+
+    }
+
 
 }
 
