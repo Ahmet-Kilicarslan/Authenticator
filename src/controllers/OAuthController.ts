@@ -1,0 +1,171 @@
+import type {Request, Response} from 'express';
+import SessionService from '../services/SessionService.js';
+import UserRepository from "../repositories/UserRepository.js";
+import crypto from "crypto";
+import {googleOAuth} from "../config/oslo.js"
+import type {RegisterDTO} from '../types';
+import { AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME } from '../config/cookie.js';
+class OAuthController {
+
+
+    constructor(
+        private sessionService: SessionService,
+        private userRepository: UserRepository
+    ) {
+    }
+
+    private generateState(): string {
+
+        return crypto.randomBytes(32).toString('hex');
+    }
+
+    private buildAuthorizationURL(endpoint: string, params: Record<string, string>): string {
+        const url = new URL(endpoint);
+
+        Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.append(key, value);
+        });
+
+        return url.toString();
+
+
+    }
+
+    private async exchangeCodeForToken(tokenEndpoint:string,params :Record<string, string>): Promise<any> {
+
+        const response = await fetch(tokenEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            },
+            body: new URLSearchParams(params)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Token exchange failed: ${response.statusText}`);
+        }
+
+        return await response.json();
+
+    }
+
+    private async fetchUserInfo(
+        userInfoEndpoint: string,
+        accessToken: string
+    ): Promise<any> {
+        const response = await fetch(userInfoEndpoint, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch user info: ${response.statusText}`);
+        }
+
+        return await response.json();
+    }
+
+    async initiateGoggleLogin(_req: Request,res:Response): Promise<void> {
+        try{
+             const state = this.generateState();
+
+             res.cookie('oauth_state', state, {
+                 httpOnly: true,
+                 secure: false,
+                 maxAge: 600000,
+                 sameSite: 'lax'
+             });
+
+            const authUrl = this.buildAuthorizationURL(
+                'https://accounts.google.com/o/oauth2/v2/auth',
+                {
+                    client_id: googleOAuth.clientId,
+                    redirect_uri: googleOAuth.redirectUri,
+                    response_type: 'code',
+                    scope: 'openid profile email',
+                    state: state
+                }
+            );
+
+            res.redirect(authUrl);
+
+        }catch(error){
+
+            res.redirect(`${process.env.FRONTEND_URL}/login?error=google_init_failed`);
+        }
+
+
+    }
+
+    async handleGoogleCallback(req: Request, res: Response): Promise<void> {
+        try{
+            const code = req.query.code as string;
+            const state = req.query.state as string;
+            const storedState = req.cookies.oauth_state;
+
+
+            if (!code || !state || !storedState || state !== storedState) {
+                res.redirect(`${process.env.FRONTEND_URL}/login?error=invalid_state`);
+                return;
+            }
+
+            const tokenData = await this.exchangeCodeForToken(
+                googleOAuth.tokenEndpoint,  // ✅ Now works
+                {
+                    code: code,
+                    client_id: googleOAuth.clientId,
+                    client_secret: googleOAuth.clientSecret,
+                    redirect_uri: googleOAuth.redirectUri,
+                    grant_type: 'authorization_code'
+                }
+            );
+
+            const googleUser = await this.fetchUserInfo(
+                googleOAuth.userInfoEndpoint,
+                tokenData.access_token
+            )
+            if (!googleUser.email) {
+                res.redirect(`${process.env.FRONTEND_URL}/login?error=invalid_state`);
+                return;
+            }
+
+            let user  = await this.userRepository.getByEmail(googleUser.email);
+            if (!user) {
+                const userData: RegisterDTO = {
+                    username: googleUser.name ?? googleUser.email.substring(0, googleUser.email.indexOf('@')),
+                    email: googleUser.email,
+                    password: ''
+                };
+
+                user = await this.userRepository.create(userData);
+            }
+
+            const token = await this.sessionService.createSession({
+                userId: user.id,
+                email: user.email,
+                permissions: [],
+                roles: []
+            });
+
+            res.clearCookie('oauth_state');
+
+            res.cookie(AUTH_COOKIE_NAME, token, AUTH_COOKIE_CONFIG);
+
+            res.redirect(`${process.env.FRONTEND_URL}/Profile`);
+
+
+        }catch(error){
+
+            console.error('❌ Google OAuth callback error:', error);
+            res.redirect(`${process.env.FRONTEND_URL}/login?error=google_auth_failed`);
+        }
+
+    }
+
+
+}
+
+export default OAuthController;

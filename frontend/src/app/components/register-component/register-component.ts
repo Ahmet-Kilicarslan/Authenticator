@@ -29,6 +29,7 @@ export default class RegisterComponent {
   emailError: string = '';
   passwordError: string = '';
   usernameError: string = '';
+  registerError: string = '';
 
   isRegisterLoading: boolean = false;
   showPassword: boolean = false;
@@ -77,6 +78,10 @@ export default class RegisterComponent {
 
   }
 
+  private handleRegisterError(error: any) {
+
+  }
+
   private validateRegister(): boolean {
     this.clearErrors();
 
@@ -101,7 +106,9 @@ export default class RegisterComponent {
     this.emailError = '';
     this.passwordError = '';
     this.usernameError = '';
+    this.registerError = '';
   }
+
 
   togglePassword() {
     this.showPassword = !this.showPassword;

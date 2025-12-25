@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import cors from 'cors';
 import authenticationRoute from "./routes/AuthenticationRoute.js";
 import profileRoute from "./routes/ProfileRoute.js";
+import oauthRoute from "./routes/OAuthRoute.js";
 import cookieParser from "cookie-parser";
+
 
 dotenv.config();
 
@@ -25,6 +27,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', authenticationRoute);
 app.use('/api/profile', profileRoute);
+app.use('/api/oauth', oauthRoute);
 
 //------------------------
 

@@ -77,10 +77,15 @@ export default class ProfileComponent implements OnInit {
 
   handleChangePhoto(): void {}
 
-  handleCancel(): void {}
+  handleCancel(): void {
+    this.isEditing = false;
+  }
 
   handleEnable2FA(): void {}
-  handleChangePassword(): void {}
+  handleChangePassword(): void {
+
+
+  }
 
 
 

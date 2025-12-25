@@ -9,6 +9,21 @@
       <h2>Sign Up</h2>
     </div>
 
+    @if (registerError) {
+      <div class="alert alert-error">
+        <div class="alert-icon">⚠</div>
+        <div class="alert-content">
+          <p class="alert-message">{{ registerError }}</p>
+        </div>
+        <button type="button"
+                class="alert-close"
+                (click)="clearErrors()"
+                aria-label="Close alert">
+          ×
+        </button>
+      </div>
+    }
+
     <form class="register-form" (ngSubmit)="handleRegister()" novalidate>
       <!---------------------Username---------------------------------->
       <div class="form-group">

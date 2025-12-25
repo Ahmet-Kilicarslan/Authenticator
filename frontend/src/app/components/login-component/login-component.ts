@@ -1,8 +1,10 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive, RouterModule} from '@angular/router';
 import {LoginRequest,LoginResponse} from '../../types/UserTypes';
 import {FormsModule} from '@angular/forms';
 import AuthService from '../../services/AuthService';
+import oauthService from '../../services/OAuthService'
+import OAuthService from '../../services/OAuthService';
 
 @Component({
   selector: 'app-login-component',
@@ -15,7 +17,7 @@ import AuthService from '../../services/AuthService';
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })
-export default class LoginComponent {
+export default class LoginComponent implements OnInit {
 
   loginData: LoginRequest = {
     email: "",
@@ -33,8 +35,21 @@ export default class LoginComponent {
   success: boolean = false;
 
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService,
+              private router: Router,
+              private oauthService: OAuthService) {
   }
+ngOnInit() {
+
+    const error = this.oauthService.checkForOAuthError();
+    if (error) {
+
+      console.error('❌ OAuth error:', error);
+      this.passwordError = this.oauthService.getErrorMessage(error);
+
+    }
+}
+
 
   handleLogin() {
 
@@ -66,7 +81,8 @@ export default class LoginComponent {
   clearLoginError() {
     this.loginError = '';
   }
-
+  
+//create error handling service later !!!!!!!!!!!!!!!!!!
   handleLoginError(error:any): void {
 
     this.clearLoginError();
@@ -101,9 +117,12 @@ export default class LoginComponent {
   }
 
 
-  handleSocialLogin(site: string) {
-
+  handleSocialLogin(provider: string) {
+    if(provider === 'Google') {
+      this.oauthService.loginWithGoogle();
+    }
   }
+
 
   togglePassword() {
     this.showPassword = !this.showPassword;

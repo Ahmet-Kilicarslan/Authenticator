@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
+import {Router, RouterLink,ActivatedRoute} from '@angular/router';
 import AuthService from '../../services/AuthService';
 
 @Component({
@@ -9,7 +9,7 @@ import AuthService from '../../services/AuthService';
   templateUrl: './reset-password-component.html',
   styleUrl: './reset-password-component.css',
 })
-export default class ResetPasswordComponent {
+export default class ResetPasswordComponent implements OnInit {
 
   success : boolean = false;
   token: string = '';
@@ -25,10 +25,19 @@ export default class ResetPasswordComponent {
   isLoading :boolean = false;
 
   constructor(private authService: AuthService,
+              private route: ActivatedRoute,
               private router: Router,){}
 
 
-  ngOnInit(){}
+  ngOnInit(){
+    this.token = this.route.snapshot.queryParams['token'] || '';
+
+    if (!this.token) {
+
+      console.error('No token found in URL');
+      this.router.navigate(['/forgot-password']);
+    }
+  }
 
   handleSubmit(){
     this.validatePassword()

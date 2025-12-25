@@ -5,6 +5,7 @@ import loginComponent from './components/login-component/login-component'
 import profileComponent from './components/profile-component/profile-component'
 import resetPasswordComponent from './components/reset-password-component/reset-password-component'
 import forgotPasswordComponent from './components/forgot-password-component/forgot-password-component'
+import {authGuard} from './guards/authGuard';
 
 export const routes: Routes = [
 
@@ -13,7 +14,7 @@ export const routes: Routes = [
   {path: 'Login', component: loginComponent},
   {path: 'Register', component: registerComponent},
   {path: 'Otp', component: otpComponent},
-  {path: 'Profile', component: profileComponent},
+  {path: 'Profile', component: profileComponent, canActivate: [authGuard]},
   {path:'reset-password', component: resetPasswordComponent},
   {path:'forgot-password', component: forgotPasswordComponent},
 

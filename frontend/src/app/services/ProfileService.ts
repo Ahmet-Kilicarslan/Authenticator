@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders,HttpResponse,HttpErrorResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {tap, catchError} from 'rxjs/operators';
-import {Observable,throwError,map} from 'rxjs';
+import {Observable, throwError, map, of} from 'rxjs';
 import {UserData,ProfileResponse} from '../types/UserTypes'
 
 @Injectable({
