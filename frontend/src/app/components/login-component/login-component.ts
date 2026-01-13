@@ -81,7 +81,7 @@ ngOnInit() {
   clearLoginError() {
     this.loginError = '';
   }
-  
+
 //create error handling service later !!!!!!!!!!!!!!!!!!
   handleLoginError(error:any): void {
 
@@ -120,6 +120,8 @@ ngOnInit() {
   handleSocialLogin(provider: string) {
     if(provider === 'Google') {
       this.oauthService.loginWithGoogle();
+    }else if(provider === 'Github') {
+      this.oauthService.loginWithGithub();
     }
   }
 

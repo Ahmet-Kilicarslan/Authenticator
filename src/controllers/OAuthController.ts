@@ -2,9 +2,9 @@ import type {Request, Response} from 'express';
 import SessionService from '../services/SessionService.js';
 import UserRepository from "../repositories/UserRepository.js";
 import crypto from "crypto";
-import {googleOAuth} from "../config/oslo.js"
+import {googleOAuth,githubOAuth} from "../config/oslo.js"
 import type {RegisterDTO} from '../types';
-import { AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME } from '../config/cookie.js';
+import { AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME ,OAUTH_COOKIE_NAME} from '../config/cookie.js';
 class OAuthController {
 
 
@@ -72,7 +72,7 @@ class OAuthController {
         try{
              const state = this.generateState();
 
-             res.cookie('oauth_state', state, {
+             res.cookie(OAUTH_COOKIE_NAME, state, {
                  httpOnly: true,
                  secure: false,
                  maxAge: 600000,
@@ -113,7 +113,7 @@ class OAuthController {
             }
 
             const tokenData = await this.exchangeCodeForToken(
-                googleOAuth.tokenEndpoint,  // ✅ Now works
+                googleOAuth.tokenEndpoint,
                 {
                     code: code,
                     client_id: googleOAuth.clientId,
@@ -159,6 +159,96 @@ class OAuthController {
 
         }catch(error){
 
+            console.error('❌ Google OAuth callback error:', error);
+            res.redirect(`${process.env.FRONTEND_URL}/login?error=google_auth_failed`);
+        }
+
+    }
+
+    async initiateGithubLogin(_req: Request, res: Response): Promise<void> {
+       try {
+           const state = this.generateState();
+
+           res.cookie(OAUTH_COOKIE_NAME, state, AUTH_COOKIE_CONFIG);
+
+           const authUrl = this.buildAuthorizationURL(
+               githubOAuth.authorizationEndpoint,
+               {
+                   client_id: githubOAuth.clientId,
+                   redirect_uri: githubOAuth.redirectUri,
+                   response_type: 'code',
+                   scope: githubOAuth.scopes.join(' '),
+                   state: state
+
+               }
+           )
+           res.redirect(authUrl);
+       }catch(error){
+           res.redirect(`${process.env.FRONTEND_URL}/login?error=google_init_failed`);
+       }
+
+    }
+
+
+    async handleGithubCallback(req: Request, res: Response): Promise<void> {
+
+        try{
+            const code = req.query.code as string;
+            const state = req.query.state as string;
+            const storedState = req.cookies.oauth_state;
+
+
+            if (!code || !state || !storedState || state !== storedState) {
+                res.redirect(`${process.env.FRONTEND_URL}/login?error=invalid_state`);
+                return;
+            }
+
+            const tokenData = await this.exchangeCodeForToken(
+
+                githubOAuth.tokenEndpoint,
+                {
+                    code: code,
+                    client_id: githubOAuth.clientId,
+                    client_secret: githubOAuth.clientSecret,
+                    redirect_uri: githubOAuth.redirectUri,
+                    grant_type: 'authorization_code'
+                }
+            )
+
+            const githubUser = await this.fetchUserInfo(githubOAuth.userInfoEndpoint, tokenData.access_token);
+
+            if (!githubUser) {
+                res.redirect(`${process.env.FRONTEND_URL}/login?error=invalid_state`);
+                return;
+            }
+
+            let user = await this.userRepository.getByEmail(githubUser.email);
+
+            if(!user){
+                const userData: RegisterDTO = {
+                    username: githubUser.name ?? githubUser.email.substring(0, githubUser.email.indexOf('@')),
+                    email: githubUser.email,
+                    password: ''
+                };
+
+                user = await this.userRepository.create(userData);
+            }
+
+            const token = await this.sessionService.createSession({
+                userId: user.id,
+                email: user.email,
+                permissions: [],
+                roles: []
+            })
+
+            res.clearCookie(OAUTH_COOKIE_NAME);
+
+            res.cookie(AUTH_COOKIE_NAME, token, AUTH_COOKIE_CONFIG);
+
+            res.redirect(`${process.env.FRONTEND_URL}/Profile`);
+
+
+        }catch(error){
             console.error('❌ Google OAuth callback error:', error);
             res.redirect(`${process.env.FRONTEND_URL}/login?error=google_auth_failed`);
         }

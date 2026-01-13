@@ -20,3 +20,8 @@ export const AUTH_COOKIE_CONFIG = {
 
 export const AUTH_COOKIE_NAME = 'authToken';
 
+export const OAUTH_COOKIE_NAME = 'oauth_state'
+
+
+
+

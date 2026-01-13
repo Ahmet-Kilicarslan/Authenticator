@@ -16,4 +16,11 @@ router.get("/google/callback", async (req,res)=>{
     return oauthController.handleGoogleCallback(req,res);
 })
 
+router.get("/github", async (req,res)=>{
+    return oauthController.initiateGithubLogin(req,res);
+})
+
+router.get("/github/callback", async (req,res)=>{
+    return oauthController.handleGithubCallback(req,res);
+})
 export default router;

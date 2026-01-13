@@ -21,6 +21,10 @@ loginWithGoogle():void {
   window.location.href = `${this.apiUrl}/google`
 }
 
+loginWithGithub():void {
+    window.location.href = `${this.apiUrl}/github`
+}
+
 
 
   checkForOAuthError(): string | null {

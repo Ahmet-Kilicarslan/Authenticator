@@ -47,4 +47,10 @@ export interface UserDTO{
 
 }
 
+export interface AuthProviderDTO{
+    userId:number;
+    providerName:string;
+    providerUserId:string;
+}
+
 
