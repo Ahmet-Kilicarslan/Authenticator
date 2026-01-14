@@ -44,3 +44,4 @@ class AuthProviderRepository {
 
 
 }
+export default  AuthProviderRepository;

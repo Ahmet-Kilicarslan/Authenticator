@@ -1,16 +1,15 @@
 import type {Request, Response} from 'express';
 import SessionService from '../services/SessionService.js';
-import UserRepository from "../repositories/UserRepository.js";
+import OauthService from "../services/OauthService";
 import crypto from "crypto";
 import {googleOAuth,githubOAuth} from "../config/oslo.js"
-import type {RegisterDTO} from '../types';
 import { AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME ,OAUTH_COOKIE_NAME} from '../config/cookie.js';
 class OAuthController {
 
 
     constructor(
         private sessionService: SessionService,
-        private userRepository: UserRepository
+        private oauthService: OauthService,
     ) {
     }
 
@@ -132,16 +131,12 @@ class OAuthController {
                 return;
             }
 
-            let user  = await this.userRepository.getByEmail(googleUser.email);
-            if (!user) {
-                const userData: RegisterDTO = {
-                    username: googleUser.name ?? googleUser.email.substring(0, googleUser.email.indexOf('@')),
-                    email: googleUser.email,
-                    password: ''
-                };
-
-                user = await this.userRepository.create(userData);
-            }
+            const user = await this.oauthService.handleOauthUser(
+                googleUser.sub,
+                'google',
+                googleUser.name ?? googleUser.email.split('@')[0],
+                googleUser.email
+            );
 
             const token = await this.sessionService.createSession({
                 userId: user.id,
@@ -222,17 +217,12 @@ class OAuthController {
                 return;
             }
 
-            let user = await this.userRepository.getByEmail(githubUser.email);
-
-            if(!user){
-                const userData: RegisterDTO = {
-                    username: githubUser.name ?? githubUser.email.substring(0, githubUser.email.indexOf('@')),
-                    email: githubUser.email,
-                    password: ''
-                };
-
-                user = await this.userRepository.create(userData);
-            }
+            const user = await this.oauthService.handleOauthUser(
+                String(githubUser.id),
+                'github',
+                githubUser.name ?? githubUser.email.split('@')[0],
+                githubUser.email
+            );
 
             const token = await this.sessionService.createSession({
                 userId: user.id,
