@@ -11,6 +11,8 @@ class OauthService {
 
     async handleOauthUser(providerUserId: string, providerName: string, username: string, email: string): Promise<User> {
 
+        const lowerCaseEmail:string = email.toLowerCase();
+
         const exists = await this.AuthProviderRepository.findByProvider(providerUserId, providerName);
 
         if (exists) {
@@ -21,23 +23,23 @@ class OauthService {
             return existingUser;
         }
 
-        const existsInUsers = await this.UserRepository.getByEmail(email);
+        const existingUser = await this.UserRepository.getByEmail(lowerCaseEmail);
 
-        if (existsInUsers) {
+        if (existingUser) {
 
             const authProviderData:AuthProviderDTO = {
-                userId: existsInUsers.id,
+                userId: existingUser.id,
                 providerName,
                 providerUserId,
             }
             await this.AuthProviderRepository.create(authProviderData);
 
-            return existsInUsers;
+            return existingUser;
         }
 
          const userData :RegisterDTO = {
              username,
-             email,
+             email:lowerCaseEmail,
              password: '',
          }
         const newUser = await this.UserRepository.create(userData);

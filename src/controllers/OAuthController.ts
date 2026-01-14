@@ -132,7 +132,7 @@ class OAuthController {
             }
 
             const user = await this.oauthService.handleOauthUser(
-                googleUser.sub,
+                googleUser.id,
                 'google',
                 googleUser.name ?? googleUser.email.split('@')[0],
                 googleUser.email

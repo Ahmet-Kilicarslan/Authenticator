@@ -26,7 +26,10 @@ class AuthenticationService {
     async initiateRegistration(registerDto: RegisterDTO): Promise<void> {
 
         //===================VALIDATION=========================================*
-        const emailExists = await this.UserRepository.emailExists(registerDto.email);
+
+        const lowerCaseEmail = registerDto.email.toLowerCase();
+
+        const emailExists = await this.UserRepository.emailExists(lowerCaseEmail);
         if (emailExists) {
             throw new Error("Email already exists");
 
@@ -47,12 +50,12 @@ class AuthenticationService {
         //store pending registration data and wait for email verification
         await this.pendingRegistrationService.storePending({
             username: registerDto.username,
-            email: registerDto.email,
+            email: lowerCaseEmail,
             hashedPassword: hashedPassword,
             createdAt: new Date().toISOString()
         });
 
-        await this.emailVerificationService.sendVerificationEmail(registerDto.email);
+        await this.emailVerificationService.sendVerificationEmail(lowerCaseEmail);
 
     }
 
