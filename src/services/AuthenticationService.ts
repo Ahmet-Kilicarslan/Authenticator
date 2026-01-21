@@ -4,6 +4,7 @@ import type SessionService from "./SessionService.js";
 import type PasswordService from "./PasswordService.js";
 import type PendingRegistrationService from './PendingRegistrationService.js';
 import type EmailVerificationService from './EmailVerificationService.js';
+import {ROLES} from '../utils/constants.js'
 
 class AuthenticationService {
 
@@ -89,6 +90,9 @@ class AuthenticationService {
             email: pendingData.email,
             password: pendingData.hashedPassword // Already hashed
         });
+
+        //assign  role as 'user'
+        await this.UserRepository.assignUserRole(user.id,ROLES.USER);
 
         // Mark as verified immediately
         await this.UserRepository.markAsVerified(email);
