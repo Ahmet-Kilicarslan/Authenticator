@@ -111,9 +111,10 @@ export default class AuthService {
 
   logout(): Observable<any> {
 
-    return this.http.post<void>(`${this.apiUrl}/logout`, {withCredentials: true}).pipe(
+    return this.http.post<void>(`${this.apiUrl}/logout`,{}, {withCredentials: true}).pipe(
       tap((response: any) => {
         console.log('Logged out');
+        console.log(response);
       }),
       catchError((error: any) => {
         return throwError(() => error.message);

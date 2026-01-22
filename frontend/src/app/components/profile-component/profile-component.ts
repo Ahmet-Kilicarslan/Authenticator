@@ -3,6 +3,7 @@ import {UserData} from '../../types/UserTypes';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import ProfileService from '../../services/ProfileService';
+import AuthService from '../../services/AuthService';
 
 @Component({
   selector: 'app-profile-component',
@@ -32,7 +33,8 @@ export default class ProfileComponent implements OnInit {
   private originalUserData: UserData | null = null;
 
   constructor(private router:Router,
-              private profileService : ProfileService) {}
+              private profileService : ProfileService,
+              private authService:AuthService) {}
 
   ngOnInit() {
     this.loadUserData();
@@ -84,6 +86,23 @@ export default class ProfileComponent implements OnInit {
   handleEnable2FA(): void {}
   handleChangePassword(): void {
 
+
+  }
+
+  handleLogout():void{
+
+    this.authService.logout().subscribe({
+      next:()=>{
+
+        setTimeout(()=>{
+          this.router.navigate(['/Login'])
+        },1000);
+
+      },error: (error:Error)=>{
+
+        console.error("Failed to logout",error)
+      }
+    })
 
   }
 
