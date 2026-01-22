@@ -25,14 +25,6 @@ class UserRepository {
         return result.rows[0];
     };
 
-    async assignUserRole(userId:number,roleId:number): Promise<void> {
-        const sql = `INSERT INTO user_roles(user_id, role_id)
-                     VALUES ($1, $2) `;
-
-         await pool.query(sql,[userId,roleId]);
-
-
-    }
 
 
     async getById(id: number): Promise<User | null> {

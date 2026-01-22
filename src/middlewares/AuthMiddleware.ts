@@ -1,8 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import SessionService from '../services/SessionService.js';
+import RoleRepository from '../repositories/RoleRepository.js'
 import { AUTH_COOKIE_NAME } from '../config/cookie.js';
 
-const sessionService = new SessionService();
+const sessionService = new SessionService(new RoleRepository());
 
 export  default async function authMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

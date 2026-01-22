@@ -1,23 +1,33 @@
 import redisClient from '../config/redis.js';
 import crypto from 'crypto';
 import type {SessionData} from '../types'
-
+import type RoleRepository from '../repositories/RoleRepository.js'
 
 class sessionService {
 
     private readonly SESSION_PREFIX = 'session:';
     private readonly SESSION_EXPIRY = 60 * 60 * 24;//1 day
 
+    constructor(
+        private RoleRepository:RoleRepository
+    ){}
+
 
     private generateToken(): string {
         return crypto.randomBytes(32).toString('hex');
     };
 
-    async createSession(sessionData: Omit<SessionData, 'createdAt' | 'lastActivity'>): Promise<string> {
+    async createSession(sessionData: Omit<SessionData, 'roles'|'permissions' | 'createdAt' | 'lastActivity'>): Promise<string> {
         const token = this.generateToken();
+
+        const permissions = await this.RoleRepository.getUserPermissions(sessionData.userId);
+
+        const roles = await this.RoleRepository.getUserRole(sessionData.userId);
 
         const fullSessionData: SessionData = {
             ...sessionData,
+            permissions:permissions,
+            roles:roles,
             createdAt: new Date().toISOString(),
             lastActivity: new Date().toISOString()
         };

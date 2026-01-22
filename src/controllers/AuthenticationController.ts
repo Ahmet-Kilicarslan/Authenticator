@@ -1,14 +1,8 @@
 import type {Request, Response} from 'express';
 import type {RegisterDTO, LoginDTO} from '../types';
-import UserRepository from '../repositories/UserRepository.js';
 import AuthenticationService from '../services/AuthenticationService.js';
-import SessionService from '../services/SessionService.js';
-import PasswordService from '../services/PasswordService.js';
 import PendingRegistrationService from '../services/PendingRegistrationService.js';
 import EmailVerificationService from '../services/EmailVerificationService.js';
-import OTPService from '../services/OTPService.js';
-import {emailProvider} from '../providers/EmailProviderFactory.js';
-import redisClient from '../config/redis.js';
 import {AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME} from '../config/cookie.js';
 
 /***********************************************************
@@ -28,53 +22,24 @@ import {AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME} from '../config/cookie.js';
  ***********************************************************/
 class AuthenticationController {
 
-    private authService: AuthenticationService;
-    private pendingRegistrationService: PendingRegistrationService;
-    private emailVerificationService: EmailVerificationService;
 
-    constructor() {
 
-        // Initialize all dependencies
-        const userRepository = new UserRepository();
-        const sessionService = new SessionService();
-        const passwordService = new PasswordService();
+    constructor(
+                private AuthenticationService:AuthenticationService,
+                private EmailVerificationService:EmailVerificationService,
+                private PendingRegistrationService:PendingRegistrationService,
+                ) {
 
 
 
-        this.pendingRegistrationService = new PendingRegistrationService(redisClient);
-
-        const otpService = new OTPService(redisClient);
-
-        this.emailVerificationService = new EmailVerificationService(
-            otpService,
-            emailProvider);
-
-        /** Create authentication service with all dependencies.
-             Services must be created to used !!  */
-
-        this.authService = new AuthenticationService(
-            userRepository,
-            sessionService,
-            passwordService,
-            this.emailVerificationService,
-            this.pendingRegistrationService
-        );
     }
 
-    /**
-     * Helper: Set authentication cookie
-     */
+
     private setAuthCookie(res: Response, token: string): void {
         res.cookie(AUTH_COOKIE_NAME, token, AUTH_COOKIE_CONFIG);
     }
 
-    /**
-     * PHASE 1: Register Endpoint
-     * POST /api/auth/register
-     *
-     * Initiates registration by storing data in Redis and sending OTP.
-     * Does NOT create user in database yet.
-     */
+
     async register(req: Request, res: Response): Promise<void> {
         try {
             const {username, email, password} = req.body as RegisterDTO;
@@ -89,7 +54,7 @@ class AuthenticationController {
             }
 
             // Delegate all business logic to service
-            await this.authService.initiateRegistration({username, email, password});
+            await this.AuthenticationService.initiateRegistration({username, email, password});
 
             // Format HTTP response (no token, no user object yet!)
             res.status(200).json({
@@ -131,12 +96,7 @@ class AuthenticationController {
         }
     }
 
-    /**
-     * PHASE 2: Verify Email Endpoint
-     * POST /api/auth/verify-email
-     *
-     * Verifies OTP and completes registration by creating user in database.
-     */
+
     async verifyEmail(req: Request, res: Response): Promise<void> {
         try {
             const {email, otp} = req.body;
@@ -151,7 +111,7 @@ class AuthenticationController {
             }
 
             // Complete registration (creates user in database)
-            const result = await this.authService.completeRegistration(email, otp);
+            const result = await this.AuthenticationService.completeRegistration(email, otp);
 
             // Set authentication cookie
             this.setAuthCookie(res, result.token);
@@ -201,7 +161,7 @@ class AuthenticationController {
                 })
             }
 
-            const checkPending = await this.pendingRegistrationService.exists(email);
+            const checkPending = await this.PendingRegistrationService.exists(email);
 
             if (!checkPending) {
                 res.status(400).json({
@@ -210,7 +170,7 @@ class AuthenticationController {
                 })
             }
 
-            await this.emailVerificationService.sendVerificationEmail(email);
+            await this.EmailVerificationService.sendVerificationEmail(email);
 
             res.status(200).json({
                 message: 'Verification email resent successfully',
@@ -239,10 +199,7 @@ class AuthenticationController {
 
     }
 
-    /**
-     * Login Endpoint
-     * POST /api/auth/login
-     */
+
     async login(req: Request, res: Response): Promise<void> {
         try {
             const {email, password} = req.body as LoginDTO;
@@ -257,7 +214,7 @@ class AuthenticationController {
             }
 
             // Delegate to service
-            const result = await this.authService.login({email, password});
+            const result = await this.AuthenticationService.login({email, password});
 
             // Set authentication cookie
             this.setAuthCookie(res, result.token);
@@ -294,10 +251,7 @@ class AuthenticationController {
         }
     }
 
-    /**
-     * Logout Endpoint
-     * POST /api/auth/logout
-     */
+
     async logout(req: Request, res: Response): Promise<void> {
         try {
             const token = req.cookies[AUTH_COOKIE_NAME];
@@ -311,7 +265,7 @@ class AuthenticationController {
             }
 
             // Delegate to service
-            await this.authService.logout(token);
+            await this.AuthenticationService.logout(token);
 
             // Clear authentication cookie
             res.clearCookie(AUTH_COOKIE_NAME);
@@ -343,7 +297,7 @@ class AuthenticationController {
                 return;
             }
 
-            await this.authService.requestPasswordReset(email);
+            await this.AuthenticationService.requestPasswordReset(email);
 
             // Always return success (security)
             res.status(200).json({
@@ -371,7 +325,7 @@ class AuthenticationController {
                 return;
             }
 
-            await this.authService.resetPassword(token, newPassword);
+            await this.AuthenticationService.resetPassword(token, newPassword);
 
             res.status(200).json({
                 message: 'Password reset successful. Please login with your new password.'

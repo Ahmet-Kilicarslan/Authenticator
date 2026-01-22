@@ -1,5 +1,6 @@
 import type {RegisterDTO, User, LoginDTO} from '../types';
 import type UserRepository from "../repositories/UserRepository.js";
+import type RoleRepository from "../repositories/RoleRepository.js"
 import type SessionService from "./SessionService.js";
 import type PasswordService from "./PasswordService.js";
 import type PendingRegistrationService from './PendingRegistrationService.js';
@@ -13,6 +14,7 @@ class AuthenticationService {
     /**   will act as orchestrator for services */
 
     constructor(private UserRepository: UserRepository,
+                private RoleRepository:RoleRepository,
                 private sessionService: SessionService,
                 private passwordService: PasswordService,
                 private emailVerificationService: EmailVerificationService,
@@ -92,7 +94,7 @@ class AuthenticationService {
         });
 
         //assign  role as 'user'
-        await this.UserRepository.assignUserRole(user.id,ROLES.USER);
+        await this.RoleRepository.assignUserRole(user.id,ROLES.USER);
 
         // Mark as verified immediately
         await this.UserRepository.markAsVerified(email);
@@ -101,8 +103,6 @@ class AuthenticationService {
         const token = await this.sessionService.createSession({
             userId: user.id,
             email: user.email,
-            permissions: [],
-            roles: []
         });
 
         // Clean up: Delete pending registration from Redis
@@ -140,8 +140,6 @@ class AuthenticationService {
         const token = await this.sessionService.createSession({
             userId: user.id,
             email: user.email,
-            permissions: [],
-            roles: []
         });
 
         return {token, user};

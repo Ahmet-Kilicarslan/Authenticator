@@ -149,8 +149,7 @@ class OAuthController {
             const token = await this.sessionService.createSession({
                 userId: user.id,
                 email: user.email,
-                permissions: [],
-                roles: []
+
             });
 
             res.clearCookie('oauth_state');
@@ -258,8 +257,6 @@ class OAuthController {
             const token = await this.sessionService.createSession({
                 userId: user.id,
                 email: user.email,
-                permissions: [],
-                roles: []
             })
 
             res.clearCookie(OAUTH_COOKIE_NAME);

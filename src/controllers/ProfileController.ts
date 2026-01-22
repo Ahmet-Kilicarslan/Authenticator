@@ -1,23 +1,18 @@
 
 import ProfileService from '../services/ProfileService.js'
 import SessionService from '../services/SessionService.js'
-import UserRepository from "../repositories/UserRepository.js";
 
 import type {Request, Response} from "express";
 
 
 class ProfileController {
 
-   private ProfileService: ProfileService;
-   private SessionService: SessionService;
 
-   constructor(){
-       const userRepository = new UserRepository();
 
-       this.ProfileService = new ProfileService(
-           userRepository
-       )
-       this.SessionService = new SessionService()
+   constructor(
+               private ProfileService:ProfileService,
+               private SessionService:SessionService){
+
 
 
    }
