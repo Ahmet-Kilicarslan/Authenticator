@@ -3,6 +3,7 @@ import type UserRepository from "../repositories/UserRepository.js";
 import type RoleRepository from "../repositories/RoleRepository.js"
 import type SessionService from "./SessionService.js";
 import type PasswordService from "./PasswordService.js";
+import type ProfileService from "./ProfileService.js"
 import type PendingRegistrationService from './PendingRegistrationService.js';
 import type EmailVerificationService from './EmailVerificationService.js';
 import {ROLES} from '../utils/constants.js'
@@ -10,21 +11,63 @@ import {ROLES} from '../utils/constants.js'
 class AuthenticationService {
 
 
-
     /**   will act as orchestrator for services */
 
     constructor(private UserRepository: UserRepository,
-                private RoleRepository:RoleRepository,
+                private RoleRepository: RoleRepository,
                 private sessionService: SessionService,
                 private passwordService: PasswordService,
+                private profileService:ProfileService,
                 private emailVerificationService: EmailVerificationService,
                 private pendingRegistrationService: PendingRegistrationService,) {
 
     }
 
 
+    async initiateEmailChange(id: number, newEmail: string): Promise<void> {
+        const lowerCaseEmail = newEmail.toLowerCase();
 
+        const emailExists = await this.UserRepository.emailExists(lowerCaseEmail);
+        if (emailExists) {
+            throw new Error("Email already exists");
 
+        }
+
+        await this.profileService.storePendingNewEmail(id,lowerCaseEmail);
+
+        await this.emailVerificationService.sendVerificationEmail(lowerCaseEmail);
+
+    }
+
+    async completeEmailChange(id:number,email: string, otp: string): Promise<User>{
+
+        const isValid = await this.emailVerificationService.verifyOTP(email, otp);
+
+        if (!isValid) {
+            throw new Error("Invalid or expired OTP");
+        }
+
+        const pendingEmail = await this.profileService.getPendingNewEmail(id);
+
+        if(!pendingEmail){
+            throw new Error('Otp expired try again later');
+        }
+
+        await this.profileService.editEmail(id,pendingEmail);
+
+        await this.profileService.deletePendingNewEmail(id);
+
+        await this.UserRepository.markAsVerified(pendingEmail);
+
+        const user = await this.UserRepository.getByEmail(pendingEmail);
+
+       if(user===null){
+           throw new Error(`User not found with Email ${pendingEmail}`);
+
+       }
+       return user;
+
+    }
 
     async initiateRegistration(registerDto: RegisterDTO): Promise<void> {
 
@@ -94,7 +137,7 @@ class AuthenticationService {
         });
 
         //assign  role as 'user'
-        await this.RoleRepository.assignUserRole(user.id,ROLES.USER);
+        await this.RoleRepository.assignUserRole(user.id, ROLES.USER);
 
         // Mark as verified immediately
         await this.UserRepository.markAsVerified(email);
@@ -155,12 +198,12 @@ class AuthenticationService {
 
     async requestPasswordReset(email: string): Promise<void> {
 
-        try{
+        try {
 
             const user = await this.UserRepository.getByEmail(email);
 
             if (!user) {
-                 return;
+                return;
             }
 
             const resetLink = await this.passwordService.generateResetLink(user.id);
@@ -169,18 +212,16 @@ class AuthenticationService {
             await this.emailVerificationService.sendPasswordResetEmail(email, resetLink);
 
 
-        }catch(error){
+        } catch (error) {
             console.error('Failed to send password reset:', error);
             throw new Error('Failed to process password reset request');
         }
 
 
-
-
     }
 
-    async resetPassword(token: string,newPassword:string): Promise<void> {
-        try{
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+        try {
             const userId = await this.passwordService.validateResetToken(token);
             if (!userId) {
                 throw new Error('Invalid  or expired token');
@@ -194,12 +235,12 @@ class AuthenticationService {
 
             const hashedPassword = await this.passwordService.hashPassword(newPassword);
 
-            await this.UserRepository.resetPassword(hashedPassword,userId);
+            await this.UserRepository.resetPassword(hashedPassword, userId);
 
             await this.passwordService.invalidateResetToken(token);
 
 
-        }catch(error){
+        } catch (error) {
             console.error('Failed to reset password:', error);
             throw error;
         }

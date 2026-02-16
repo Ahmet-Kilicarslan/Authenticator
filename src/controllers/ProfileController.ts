@@ -1,28 +1,28 @@
-
 import ProfileService from '../services/ProfileService.js'
 import SessionService from '../services/SessionService.js'
-
+import PasswordService from '../services/PasswordService.js'
+import AuthenticationService from '../services/AuthenticationService.js'
 import type {Request, Response} from "express";
-
 
 class ProfileController {
 
 
-
-   constructor(
-               private ProfileService:ProfileService,
-               private SessionService:SessionService){
-
-
-
-   }
+    constructor(
+        private ProfileService: ProfileService,
+        private SessionService: SessionService,
+        private PasswordService: PasswordService,
+        private AuthenticationService: AuthenticationService
+    ) {
 
 
-    async getUserProfile(req:Request,res:Response): Promise<void> {
+    }
 
-        try{
 
-          const token = req.cookies.authToken;
+    async getUserProfile(req: Request, res: Response): Promise<void> {
+
+        try {
+
+            const token = req.cookies.authToken;
 
             if (!token) {
                 res.status(401).json({
@@ -43,7 +43,7 @@ class ProfileController {
             }
 
 
-         const userId = session.userId;
+            const userId = session.userId;
 
             if (!userId) {
                 res.status(401).json({
@@ -69,9 +69,7 @@ class ProfileController {
             });
 
 
-
-
-        }catch(error){
+        } catch (error) {
 
             console.error('Error fetching profile:', error);
 
@@ -84,7 +82,105 @@ class ProfileController {
 
     }
 
+    async resetPasswordWithOldPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const {id, newPassword, oldPassword} = req.body;
+
+
+            await this.PasswordService.resetPasswordWithOldPassword(id, newPassword, oldPassword);
+
+            res.status(200).json({
+                message: 'Password Successfully changed'
+            });
+
+
+        } catch (error: any) {
+            console.error("Error changing Password", error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: error.message
+            })
+
+        }
+
+    }
+
+    async initiateEmailChange(req: Request, res: Response): Promise<void> {
+
+        try {
+            const {id, newEmail} = req.body;
+
+            await this.AuthenticationService.initiateEmailChange(id, newEmail);
+
+            res.status(200).json({
+                message: `Successfully initiated email change, ${newEmail}`
+            });
+
+        } catch (error: any) {
+            console.error("Error initiating email change", error);
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: error.message
+            })
+        }
+
+    }
+
+    async completeEmailChange(req: Request, res: Response): Promise<void> {
+
+        try {
+            const {id, pendingEmail, otp} = req.body;
+
+            if (!id || !pendingEmail || !otp) {
+                res.status(400).json({
+                    error: "Missing required fields"
+                });
+                return;
+            }
+
+           const userWithUpdatedEmail= await this.AuthenticationService.completeEmailChange(id, pendingEmail, otp);
+
+           if(!userWithUpdatedEmail) {
+               res.status(400).json({
+                   error: `could not complete email change, ${userWithUpdatedEmail}`
+
+               })           }
+            res.status(200).json({
+                message: `Successfully completed email change, ${pendingEmail}`,
+                user: userWithUpdatedEmail
+            });
+
+
+        } catch (error: any) {
+            console.error("Error completing email change:", error);
+
+            //  Map known business errors
+            if (error.message.includes("Invalid or expired OTP")) {
+                res.status(400).json({ error: error.message });
+                return;
+            }
+
+            if (error.message.includes("already exists")) {
+                res.status(409).json({ error: error.message });
+                return;
+            }
+
+            if (error.message.includes("User not found")) {
+                res.status(404).json({ error: error.message });
+                return;
+            }
+
+            // 🔹 Fallback
+            res.status(500).json({
+                error: "Internal Server Error"
+            });
+        }
+
+
+    }
+
 
 }
+
 
 export default ProfileController;

@@ -75,7 +75,10 @@ export default class ProfileComponent implements OnInit {
 
   }
 
-  handleSave(): void {}
+  handleSave(): void {
+
+
+  }
 
   handleChangePhoto(): void {}
 
@@ -84,9 +87,8 @@ export default class ProfileComponent implements OnInit {
   }
 
   handleEnable2FA(): void {}
+
   handleChangePassword(): void {
-
-
   }
 
   handleLogout():void{

@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import redisClient from '../config/redis.js';
 import dotenv from 'dotenv';
+import UserRepository from '../repositories/UserRepository.js'
 
 dotenv.config();
 
@@ -9,6 +10,8 @@ class PasswordService {
 
     private readonly RESET_PREFIX = "password_reset:";
 
+    constructor(private UserRepository: UserRepository) {
+    }
 
     async generateResetLink(userId: number): Promise<string> {
 
@@ -32,7 +35,7 @@ class PasswordService {
 
     }
 
-    async validateResetToken(token:string): Promise<number|null> {
+    async validateResetToken(token: string): Promise<number | null> {
 
         const hashedToken = crypto
             .createHash("sha256")
@@ -51,10 +54,9 @@ class PasswordService {
         return Number(userId);
 
 
-
     }
 
-    async invalidateResetToken(token:string): Promise<void> {
+    async invalidateResetToken(token: string): Promise<void> {
 
         const hashedToken = crypto
             .createHash("sha256")
@@ -103,6 +105,34 @@ class PasswordService {
             strong: errors.length === 0,
             errors
         };
+
+
+    }
+
+    async resetPasswordWithOldPassword(id: number, newPassword: string, oldPassword: string) {
+
+        const password = await this.validateStrength(newPassword);
+
+        if (!password.strong) {
+            throw new Error(password.errors[0]);
+            return;
+
+        }
+        const user = await this.UserRepository.getById(id);
+
+        if (user === null) {
+
+            return;
+        }
+        const oldPasswordMatch = await this.comparePassword(oldPassword, user.password)
+
+        if (oldPasswordMatch) {
+
+            const hashedNewPassword = await this.hashPassword(newPassword);
+
+            await this.UserRepository.resetPassword(hashedNewPassword, id);
+
+        } else throw new Error("Incorrect old password");
 
 
     }

@@ -97,7 +97,7 @@ class AuthenticationController {
     }
 
 
-    async verifyEmail(req: Request, res: Response): Promise<void> {
+    async verifyEmailAndCompleteRegistration(req: Request, res: Response): Promise<void> {
         try {
             const {email, otp} = req.body;
 

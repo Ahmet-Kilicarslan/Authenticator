@@ -47,10 +47,20 @@ export interface UserDTO{
 
 }
 
+
+
 export interface AuthProviderDTO{
     userId:number;
     providerName:string;
     providerUserId:string;
+}
+
+/*
+    Can add attributes like date of birth, bio etc. Can Update with dynamic query building
+
+    */
+export interface BasicUserInfo{
+    username?:string
 }
 
 
