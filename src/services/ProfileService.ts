@@ -44,6 +44,7 @@ class ProfileService {
         await this.UserRepository.editEmail(id,mail);
 
     }
+
     async editPassword(id:number,password:string):Promise<void>{
 
         await this.UserRepository.resetPassword(password,id);

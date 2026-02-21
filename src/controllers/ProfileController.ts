@@ -3,6 +3,7 @@ import SessionService from '../services/SessionService.js'
 import PasswordService from '../services/PasswordService.js'
 import AuthenticationService from '../services/AuthenticationService.js'
 import type {Request, Response} from "express";
+import {AUTH_COOKIE_NAME} from "../config/cookie.js"
 
 class ProfileController {
 
@@ -108,9 +109,19 @@ class ProfileController {
     async initiateEmailChange(req: Request, res: Response): Promise<void> {
 
         try {
-            const {id, newEmail} = req.body;
+            const newEmail = req.body;
 
-            await this.AuthenticationService.initiateEmailChange(id, newEmail);
+            const token = req.cookies[AUTH_COOKIE_NAME];
+
+            const sessionData = await this.SessionService.getSession(token);
+
+            if(!sessionData){
+                res.status(401).json({ message: 'Invalid or expired session' });
+                return;
+            }
+            const id = sessionData.userId;
+
+            await this.AuthenticationService.initiateEmailChange(id,newEmail);
 
             res.status(200).json({
                 message: `Successfully initiated email change, ${newEmail}`
@@ -129,9 +140,20 @@ class ProfileController {
     async completeEmailChange(req: Request, res: Response): Promise<void> {
 
         try {
-            const {id, pendingEmail, otp} = req.body;
+            const { pendingEmail, otp} = req.body;
 
-            if (!id || !pendingEmail || !otp) {
+
+            const token = req.cookies[AUTH_COOKIE_NAME];
+
+            const sessionData = await this.SessionService.getSession(token);
+
+            if(!sessionData){
+                res.status(401).json({ message: 'Invalid or expired session' });
+                return;
+            }
+            const id = sessionData.userId;
+
+            if ( !pendingEmail || !otp) {
                 res.status(400).json({
                     error: "Missing required fields"
                 });
@@ -170,7 +192,7 @@ class ProfileController {
                 return;
             }
 
-            // 🔹 Fallback
+            //  Fallback
             res.status(500).json({
                 error: "Internal Server Error"
             });

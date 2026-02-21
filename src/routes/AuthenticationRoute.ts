@@ -49,8 +49,9 @@ router.post("/register", async (req, res) => {
 });
 
 router.post('/verify-email', async (req, res) => {
-    return authController.verifyEmailAndCompleteRegistration(req, res);
+    return authController.completeRegistration(req, res);
 });
+
 
 router.post("/resend-otp", async (req, res) => {
     return authController.resendOTP(req, res);

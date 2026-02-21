@@ -23,13 +23,11 @@ import {AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME} from '../config/cookie.js';
 class AuthenticationController {
 
 
-
     constructor(
-                private AuthenticationService:AuthenticationService,
-                private EmailVerificationService:EmailVerificationService,
-                private PendingRegistrationService:PendingRegistrationService,
-                ) {
-
+        private AuthenticationService: AuthenticationService,
+        private EmailVerificationService: EmailVerificationService,
+        private PendingRegistrationService: PendingRegistrationService,
+    ) {
 
 
     }
@@ -97,7 +95,32 @@ class AuthenticationController {
     }
 
 
-    async verifyEmailAndCompleteRegistration(req: Request, res: Response): Promise<void> {
+   /* async verifyEmail(req: Request, res: Response): Promise<void> {
+        try {
+            const {email, otp} = req.body;
+
+            // Basic input validation
+            if (!email || !otp) {
+                res.status(400).json({
+                    error: 'Missing fields',
+                    message: 'Email and OTP are required'
+                });
+                return;
+            }
+
+            const result = await this.EmailVerificationService.verifyOTP(email, otp);
+
+            res.status(200).json({
+                message: 'Email verified successfully! Registration complete.',
+                email: result
+            });
+        } catch (error: any) {
+
+
+        }
+    }*/
+
+    async completeRegistration(req: Request, res: Response): Promise<void> {
         try {
             const {email, otp} = req.body;
 
@@ -288,7 +311,7 @@ class AuthenticationController {
     //  Request password reset
     async forgotPassword(req: Request, res: Response): Promise<void> {
         try {
-            const { email } = req.body;
+            const {email} = req.body;
 
             if (!email) {
                 res.status(400).json({
@@ -316,7 +339,7 @@ class AuthenticationController {
 // Reset password
     async resetPassword(req: Request, res: Response): Promise<void> {
         try {
-            const { token, newPassword } = req.body;
+            const {token, newPassword} = req.body;
 
             if (!token || !newPassword) {
                 res.status(400).json({

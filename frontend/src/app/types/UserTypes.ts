@@ -41,3 +41,17 @@ export interface EmailVerificationRequest {
   email:string;
   otp:string;
 }
+
+export interface EmailChangeRequest{
+  email:string;
+}
+
+export interface EmailChangeCompleteResponse {
+  message: string;
+  email: string;
+}
+
+export interface EmailChangeInitiateResponse {
+  message: string;
+  expiresIn: number;
+}

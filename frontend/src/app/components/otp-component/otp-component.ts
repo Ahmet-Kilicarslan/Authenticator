@@ -42,14 +42,18 @@ export default class OtpComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Get email from localStorage
+
+
     this.request.email = localStorage.getItem('pendingVerificationEmail') || '';
 
     if (!this.request.email) {
-      // No email found, redirect back to register
+
+      this.request.email = localStorage.getItem('pendingVerificationEmailForUpdate') || '';
+
+       if(!this.request.email){
       console.error('❌ No email found for verification');
       this.router.navigate(['/Register']);
-      return;
+      return;}
     }
 
     console.log('📧 Verifying email:', this.request.email);
@@ -67,9 +71,12 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.resendCooldownSubscription?.unsubscribe();
   }
 
-  /**
-   * Handle OTP verification
-   */
+
+
+  handleUpdatingEmail():void{
+
+  }
+
   handleVerifyOTP(): void {
     // Validate input first
     if (!this.validateOtp()) {
@@ -80,7 +87,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.isVerifying = true;
     this.otpError = '';
 
-    console.log('🔧 Verifying OTP for:', this.request.email);
+    console.log(' Verifying OTP for:', this.request.email);
 
     // Call verification service
     this.authService.verifyEmail(this.request).subscribe({
@@ -95,9 +102,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Handle successful verification
-   */
+
   private onVerificationSuccess(): void {
     this.isVerifying = false;
     this.verificationSuccess = true;

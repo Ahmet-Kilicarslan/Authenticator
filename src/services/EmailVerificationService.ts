@@ -3,29 +3,28 @@ import type IEmailProvider from '../providers/IEmailProvider.js';
 
 class EmailVerificationService {
 
-    private readonly OTP_PURPOSE = 'email_verification';
 
     constructor(private otpService:OTPService,
                 private emailProvider:IEmailProvider) {
     }
 
-    async sendVerificationEmail(email: string): Promise<void> {
+    async sendVerificationEmail(email: string,purpose:string): Promise<void> {
 
 
 
-        const otp = await this.otpService.generateAndStoreOTP(email, this.OTP_PURPOSE);
+        const otp = await this.otpService.generateAndStoreOTP(email, purpose);
 
         await this.emailProvider.sendOtpEmail(email, otp);
 
 
     }
 
-    async verifyOTP(email: string, otp: string): Promise<boolean> {
+    async verifyOTP(email: string, otp: string,purpose:string): Promise<boolean> {
 
-        const isValid = await this.otpService.verifyOTP(email, otp, this.OTP_PURPOSE);
+        const isValid = await this.otpService.verifyOTP(email, otp, purpose);
 
         if (isValid) {
-            await this.otpService.invalidateOTP(email, this.OTP_PURPOSE);
+            await this.otpService.invalidateOTP(email, purpose);
         }
 
         return isValid;
