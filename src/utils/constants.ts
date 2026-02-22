@@ -9,5 +9,4 @@ export const ROLES = {
 export const OTP_PURPOSES = {
     REGISTER: 'register',
     EMAIL_CHANGE: 'email_change',
-    PASSWORD_RESET: 'password_reset'
 }as const;

@@ -86,10 +86,14 @@ export default class ProfileComponent implements OnInit {
 
           console.log(response.message);
 
-          localStorage.setItem('pendingVerificationEmailForUpdate', emailChangeRequest.email);
-
           setTimeout(() => {
-            this.router.navigate(['/Otp']);
+            this.router.navigate(['/Otp'], {
+              queryParams: {
+                email: this.userData.email,
+                purpose: 'email_change'
+              }
+
+            });
           }, 1000);
 
 

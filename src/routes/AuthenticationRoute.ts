@@ -44,11 +44,11 @@ const authController = new AuthenticationController(
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
-    return authController.register(req, res)
+router.post("/initiate-register", async (req, res) => {
+    return authController.initiateRegister(req, res)
 });
 
-router.post('/verify-email', async (req, res) => {
+router.post('/complete-register', async (req, res) => {
     return authController.completeRegistration(req, res);
 });
 

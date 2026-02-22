@@ -7,7 +7,7 @@
         <img src="/lubiv-dithered.png" alt="logo" class="logo-img">
       </div>
       <h2>Verify Your Email</h2>
-      <p class="email-display">Code sent to <strong>{{ request.email }}</strong></p>
+      <p class="email-display">Code sent to <strong>{{ emailVerificationRequest.email }}</strong></p>
     </div>
 
     <!-- Timer Display -->
@@ -53,7 +53,7 @@
             <input type="text"
                    id="otp"
                    name="otp"
-                   [(ngModel)]="request.otp"
+                   [(ngModel)]="emailVerificationRequest.otp"
                    maxlength="6"
                    pattern="[0-9]*"
                    inputmode="numeric"

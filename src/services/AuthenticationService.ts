@@ -6,7 +6,7 @@ import type PasswordService from "./PasswordService.js";
 import type ProfileService from "./ProfileService.js"
 import type PendingRegistrationService from './PendingRegistrationService.js';
 import type EmailVerificationService from './EmailVerificationService.js';
-import {ROLES} from '../utils/constants.js'
+import {ROLES,OTP_PURPOSES} from '../utils/constants.js'
 
 class AuthenticationService {
 
@@ -35,13 +35,13 @@ class AuthenticationService {
 
         await this.profileService.storePendingNewEmail(id,lowerCaseEmail);
 
-        await this.emailVerificationService.sendVerificationEmail(lowerCaseEmail);
+        await this.emailVerificationService.sendVerificationEmail(lowerCaseEmail,OTP_PURPOSES.EMAIL_CHANGE);
 
     }
 
     async completeEmailChange(id:number,email: string, otp: string): Promise<User>{
 
-        const isValid = await this.emailVerificationService.verifyOTP(email, otp);
+        const isValid = await this.emailVerificationService.verifyOTP(email, otp,OTP_PURPOSES.EMAIL_CHANGE);
 
         if (!isValid) {
             throw new Error("Invalid or expired OTP");
@@ -101,20 +101,20 @@ class AuthenticationService {
             createdAt: new Date().toISOString()
         });
 
-        await this.emailVerificationService.sendVerificationEmail(lowerCaseEmail);
+        await this.emailVerificationService.sendVerificationEmail(lowerCaseEmail,OTP_PURPOSES.REGISTER);
 
     }
 
-    async resendVerificationEmail(email: string): Promise<void> {
+   /* async resendVerificationEmail(email: string): Promise<void> {
 
         await this.emailVerificationService.sendVerificationEmail(email);
 
-    }
+    }*/
 
 
     async completeRegistration(email: string, otp: string): Promise<{ token: string, user: User }> {
 
-        const isValid = await this.emailVerificationService.verifyOTP(email, otp);
+        const isValid = await this.emailVerificationService.verifyOTP(email, otp,OTP_PURPOSES.REGISTER);
 
         if (!isValid) {
             throw new Error("Invalid or expired OTP");

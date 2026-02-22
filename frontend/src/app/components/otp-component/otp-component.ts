@@ -1,9 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {interval, Subscription} from 'rxjs';
-import {EmailVerificationRequest} from '../../types/UserTypes';
+import {EmailVerificationRequest, ResendData, OtpPurpose} from '../../types/UserTypes';
 import AuthService from '../../services/AuthService.js';
+import ProfileService from '../../services/ProfileService.js';
 
 @Component({
   selector: 'app-otp-component',
@@ -15,10 +16,14 @@ import AuthService from '../../services/AuthService.js';
 })
 export default class OtpComponent implements OnInit, OnDestroy {
 
-  request: EmailVerificationRequest = {
+  emailVerificationRequest: EmailVerificationRequest = {
     email: '',
     otp: ''
   }
+
+
+  purpose: string = "";
+
 
   otpError: string = "";
   isVerifying: boolean = false;
@@ -38,48 +43,46 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private authService: AuthService,  // ✅ Only need authService
-  ) {}
+    private route: ActivatedRoute,
+    private authService: AuthService,
+    private profileService: ProfileService
+  ) {
+  }
 
   ngOnInit(): void {
 
+    this.route.queryParams.subscribe(params => {
+      this.emailVerificationRequest.email = params['email'];
+      this.purpose = params['purpose'];
 
-    this.request.email = localStorage.getItem('pendingVerificationEmail') || '';
+      if (!this.emailVerificationRequest.email) {
+        console.error('No email found for verification');
+        this.goBack();
+        return;
 
-    if (!this.request.email) {
+      }
 
-      this.request.email = localStorage.getItem('pendingVerificationEmailForUpdate') || '';
+    })
 
-       if(!this.request.email){
-      console.error('❌ No email found for verification');
-      this.router.navigate(['/Register']);
-      return;}
-    }
+    console.log('📧 Verifying email:', this.emailVerificationRequest.email);
 
-    console.log('📧 Verifying email:', this.request.email);
-
-    // Start the expiration timer
     this.startExpirationTimer();
 
-    // Start resend cooldown
     this.startResendCooldown();
   }
 
   ngOnDestroy(): void {
-    // Clean up subscriptions
+
     this.timerSubscription?.unsubscribe();
     this.resendCooldownSubscription?.unsubscribe();
   }
 
 
-
-  handleUpdatingEmail():void{
-
-  }
-
   handleVerifyOTP(): void {
-    // Validate input first
-    if (!this.validateOtp()) {
+
+    if (!
+      this.validateOtp()
+    ) {
       console.log('❌ Validation failed:', this.otpError);
       return;
     }
@@ -87,19 +90,33 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.isVerifying = true;
     this.otpError = '';
 
-    console.log(' Verifying OTP for:', this.request.email);
+    console.log(' Verifying OTP for:', this.emailVerificationRequest.email);
 
     // Call verification service
-    this.authService.verifyEmail(this.request).subscribe({
-      next: (response: any) => {
-        console.log('✅ Verification successful:', response);
-        this.onVerificationSuccess();
-      },
-      error: (error: any) => {
-        console.error('❌ Verification failed:', error);
-        this.handleVerificationFailure(error);
-      }
-    });
+    if (this.purpose === OtpPurpose.REGISTER) {
+      this.authService.completeRegister(this.emailVerificationRequest).subscribe({
+        next: (response: any) => {
+          console.log('✅ Verification successful:', response);
+          this.onVerificationSuccess();
+        },
+        error: (error: any) => {
+          console.error('❌ Verification failed:', error);
+          this.handleVerificationFailure(error);
+        }
+      });
+    } else if (this.purpose === OtpPurpose.EMAIL_CHANGE) {
+      this.profileService.completeEmailChange(this.emailVerificationRequest).subscribe({
+        next: (response: any) => {
+          console.log('✅ Verification successful:', response);
+          this.onVerificationSuccess();
+        },
+        error: (error: any) => {
+          console.error('❌ Verification failed:', error);
+          this.handleVerificationFailure(error);
+        }
+      });
+    }
+
   }
 
 
@@ -110,50 +127,57 @@ export default class OtpComponent implements OnInit, OnDestroy {
     // Stop timer
     this.timerSubscription?.unsubscribe();
 
-    // Clear stored email
-    localStorage.removeItem('pendingVerificationEmail');
 
-    console.log('🎉 Email verified! Redirecting to login...');
+    console.log('Email verified! Redirecting to login...');
 
-    // Redirect to login after 2 seconds
-    setTimeout(() => {
-      this.router.navigate(['/Login'], {
-        queryParams: { verified: 'true' }
-      });
-    }, 2000);
+    if (this.purpose === OtpPurpose.REGISTER) {
+
+      setTimeout(() => {
+        this.router.navigate(['/Login'], {
+          queryParams: {verified: 'true'}
+        });
+      }, 2000);
+
+    } else if (this.purpose === OtpPurpose.EMAIL_CHANGE) {
+
+      setTimeout(() => {
+        this.router.navigate(['/Profile'], {
+          queryParams: {verified: 'true'}
+        });
+      }, 2000);
+    }
   }
 
-  /**
-   * Handle verification failure
-   */
+
   private handleVerificationFailure(error: any): void {
+
     this.isVerifying = false;
     this.verificationSuccess = false;
 
     // Handle different error types from backend
-    if (error.error?.error === 'Invalid OTP') {
+    if (error.error?.error === 'Invalid OTP'
+    ) {
       this.otpError = 'Invalid or expired code';
-    } else if (error.error?.error === 'Registration expired') {
-      this.otpError = 'Registration expired. Please register again.';
-      // Auto-redirect to register after 3 seconds
-      setTimeout(() => {
-        this.router.navigate(['/Register']);
-      }, 3000);
+    } else if (error.error?.error === 'Pending data expired') {
+      this.otpError = 'Pending data expired. Please register again.';
+
+      this.goBack();
+
     } else if (error.status === 404) {
-      this.otpError = 'Registration not found. Please register again.';
+
+      this.otpError = 'Pending data not found. Please register again.';
     } else if (error.status === 429) {
+
       this.otpError = 'Too many attempts. Please try again later.';
     } else {
       this.otpError = error.error?.message || 'Verification failed. Please try again.';
     }
 
     // Clear the input on error
-    this.request.otp = "";
+    this.emailVerificationRequest.otp = "";
   }
 
-  /**
-   * Handle resend OTP
-   */
+
   handleResendOTP(): void {
     if (!this.canResend || this.isResending) {
       console.log('⚠️ Cannot resend yet');
@@ -163,10 +187,15 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.isResending = true;
     this.otpError = '';
 
-    console.log('🔧 Resending verification email to:', this.request.email);
+    const resendData: ResendData = {
+      email: this.emailVerificationRequest.email,
+      purpose: this.purpose
+    };
+
+    console.log('🔧 Resending verification email to:', this.emailVerificationRequest.email);
 
     // ✅ Call authService.resendOTP() instead of verificationService
-    this.authService.resendOTP(this.request.email).subscribe({
+    this.authService.resendOTP(resendData).subscribe({
       next: (response: any) => {
         console.log('✅ Verification email resent:', response);
         this.onResendSuccess();
@@ -178,9 +207,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Handle successful resend
-   */
+
   private onResendSuccess(): void {
     this.isResending = false;
 
@@ -196,30 +223,25 @@ export default class OtpComponent implements OnInit, OnDestroy {
     this.startResendCooldown();
 
     // Clear input
-    this.request.otp = "";
+    this.emailVerificationRequest.otp = "";
 
     console.log('✅ New verification code sent');
   }
 
-  /**
-   * Handle failed resend
-   */
   private onResendFailure(error: any): void {
     this.isResending = false;
 
     // Handle backend error responses
-    if (error.status === 429 || error.error?.error === 'Rate limit exceeded') {
+    if (error.status === 429 || error.error?.error === 'Rate limit exceeded'
+    ) {
 
       this.otpError = 'Please wait 60 seconds before requesting another code';
 
-    } else if (error.status === 404 || error.error?.error === 'Registration not found') {
+    } else if (error.status === 404 || error.error?.error === 'Pending data not found') {
 
-      this.otpError = 'Registration expired. Please register again.';
+      this.otpError = 'Pending data  expired. Please register again.';
 
-      setTimeout(() => {
-        this.router.navigate(['/Register']);
-
-        }, 3000);
+      this.goBack();
 
     } else {
 
@@ -228,9 +250,6 @@ export default class OtpComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Start 5-minute expiration countdown
-   */
   private startExpirationTimer(): void {
     this.timeRemaining = 300; // Reset to 5 minutes
 
@@ -245,9 +264,6 @@ export default class OtpComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Start 60-second resend cooldown
-   */
   private startResendCooldown(): void {
     this.resendCooldown = 60;
     this.canResend = false;
@@ -262,30 +278,29 @@ export default class OtpComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Format time as MM:SS
-   */
-  get formattedTime(): string {
+
+  get formattedTime()
+    :
+    string {
     const minutes = Math.floor(this.timeRemaining / 60);
     const seconds = this.timeRemaining % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  /**
-   * Validate OTP input
-   */
+
   private validateOtp(): boolean {
+
     this.otpError = '';
 
-    if (!this.request.otp) {
+    if (!this.emailVerificationRequest.otp) {
       this.otpError = 'Please enter the verification code';
       return false;
     }
 
-    // Remove any spaces or non-digits
-    this.request.otp = this.request.otp.replace(/\D/g, '');
 
-    if (this.request.otp.length !== 6) {
+    this.emailVerificationRequest.otp = this.emailVerificationRequest.otp.replace(/\D/g, '');
+
+    if (this.emailVerificationRequest.otp.length !== 6) {
       this.otpError = 'Code must be 6 digits';
       return false;
     }
@@ -298,12 +313,24 @@ export default class OtpComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  /**
-   * Navigate back to registration
-   */
+
   goBack(): void {
-    // Clean up before leaving
-    localStorage.removeItem('pendingVerificationEmail');
-    this.router.navigate(['/Register']);
+
+    if (this.purpose === OtpPurpose.REGISTER) {
+
+      setTimeout(() => {
+        this.router.navigate(['/Register'], {
+          queryParams: {verified: 'true'}
+        });
+      }, 2000);
+
+    } else if (this.purpose === OtpPurpose.EMAIL_CHANGE) {
+
+      setTimeout(() => {
+        this.router.navigate(['/Profile'], {
+          queryParams: {verified: 'true'}
+        });
+      }, 2000);
+    }
   }
 }

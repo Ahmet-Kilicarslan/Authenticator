@@ -55,3 +55,14 @@ export interface EmailChangeInitiateResponse {
   message: string;
   expiresIn: number;
 }
+
+export interface ResendData {
+  email:string;
+  purpose:string;
+}
+
+export enum OtpPurpose{
+  REGISTER = 'register',
+  EMAIL_CHANGE = 'email_change'
+
+}

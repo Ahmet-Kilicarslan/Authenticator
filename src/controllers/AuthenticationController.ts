@@ -38,7 +38,7 @@ class AuthenticationController {
     }
 
 
-    async register(req: Request, res: Response): Promise<void> {
+    async initiateRegister(req: Request, res: Response): Promise<void> {
         try {
             const {username, email, password} = req.body as RegisterDTO;
 
@@ -175,7 +175,7 @@ class AuthenticationController {
     async resendOTP(req: Request, res: Response): Promise<void> {
 
         try {
-            const {email} = req.body;
+            const {email,purpose} = req.body;
 
             if (!email) {
                 res.status(400).json({
@@ -193,7 +193,7 @@ class AuthenticationController {
                 })
             }
 
-            await this.EmailVerificationService.sendVerificationEmail(email);
+            await this.EmailVerificationService.sendVerificationEmail(email,purpose);
 
             res.status(200).json({
                 message: 'Verification email resent successfully',

@@ -51,7 +51,7 @@ export default class RegisterComponent {
       return;
 
     }
-    this.authService.register(this.registerData).subscribe({
+    this.authService.initiateRegister(this.registerData).subscribe({
 
       next: (data: LoginResponse) => {
         this.isRegisterLoading = false;
@@ -61,10 +61,16 @@ export default class RegisterComponent {
         }
         this.success = true;
 
-        localStorage.setItem('pendingVerificationEmail', this.registerData.email);
+
 
         setTimeout(() => {
-          this.router.navigate(['/Otp']);
+          this.router.navigate(['/Otp'],{
+            queryParams:{
+              email:this.registerData.email,
+              purpose:'register'
+            }
+
+          });
         }, 1000);
 
 
