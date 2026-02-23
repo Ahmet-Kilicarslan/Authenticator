@@ -7,12 +7,12 @@ import RoleRepository from '../repositories/RoleRepository.js'
 import redisClient from '../config/redis.js';
 import authMiddleware from "../middlewares/AuthMiddleware.js";
 import requirePermission from "../middlewares/RoleMiddleware.js"
-import PasswordService from "../services/PasswordService";
-import OTPService from "../services/OTPService";
-import EmailVerificationService from "../services/EmailVerificationService";
-import {emailProvider} from "../providers/EmailProviderFactory";
-import PendingRegistrationService from "../services/PendingRegistrationService";
-import AuthenticationService from "../services/AuthenticationService";
+import PasswordService from "../services/PasswordService.js";
+import OTPService from "../services/OTPService.js";
+import EmailVerificationService from "../services/EmailVerificationService.js";
+import {emailProvider} from "../providers/EmailProviderFactory.js";
+import PendingRegistrationService from "../services/PendingRegistrationService.js";
+import AuthenticationService from "../services/AuthenticationService.js";
 
 const router = express.Router();
 
@@ -52,17 +52,18 @@ router.get("/getProfile", authMiddleware,requirePermission("profile:view_own"), 
     return profileController.getUserProfile(req, res);
 })
 
-router.post("edit-password",authMiddleware,requirePermission("profile:edit_own"),async (req,res)=>{
+router.post("/edit-password",authMiddleware,requirePermission("profile:edit_own"),async (req,res)=>{
     return profileController.resetPasswordWithOldPassword(req,res);
 })
 
-router.post("initiate-email-change",authMiddleware,requirePermission("profile:edit_own"),async (req,res)=>{
+router.post("/initiate-email-change",authMiddleware,requirePermission("profile:edit_own"),async (req,res)=>{
     return profileController.initiateEmailChange(req,res);
 })
 
-router.post("complete-email-change",authMiddleware,requirePermission("profile:edit_own"),async (req,res)=>{
+router.post("/complete-email-change",authMiddleware,requirePermission("profile:edit_own"),async (req,res)=>{
     return profileController.completeEmailChange(req,res);
 })
+
 
 
 export default router;

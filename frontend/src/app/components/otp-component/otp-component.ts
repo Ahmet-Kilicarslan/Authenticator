@@ -24,6 +24,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
   purpose: string = "";
 
+  previousPage: string = "";
 
   otpError: string = "";
   isVerifying: boolean = false;
@@ -35,7 +36,10 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
   // Resend cooldown
   canResend: boolean = false;
-  resendCooldown: number = 60; // 60 seconds before can resend
+
+  ResendCoolDown: number = 10;
+
+  resendCooldown: number = this.ResendCoolDown; // 60 seconds before can resend
   resendCooldownSubscription?: Subscription;
 
   // Success state
@@ -97,6 +101,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
       this.authService.completeRegister(this.emailVerificationRequest).subscribe({
         next: (response: any) => {
           console.log('✅ Verification successful:', response);
+          this.previousPage = "Register";
           this.onVerificationSuccess();
         },
         error: (error: any) => {
@@ -108,6 +113,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
       this.profileService.completeEmailChange(this.emailVerificationRequest).subscribe({
         next: (response: any) => {
           console.log('✅ Verification successful:', response);
+          this.previousPage = "Register";
           this.onVerificationSuccess();
         },
         error: (error: any) => {
@@ -194,7 +200,6 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
     console.log('🔧 Resending verification email to:', this.emailVerificationRequest.email);
 
-    // ✅ Call authService.resendOTP() instead of verificationService
     this.authService.resendOTP(resendData).subscribe({
       next: (response: any) => {
         console.log('✅ Verification email resent:', response);
@@ -218,7 +223,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
     // Reset resend cooldown
     this.resendCooldownSubscription?.unsubscribe();
-    this.resendCooldown = 60;
+    this.resendCooldown = this.ResendCoolDown;
     this.canResend = false;
     this.startResendCooldown();
 
@@ -235,7 +240,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
     if (error.status === 429 || error.error?.error === 'Rate limit exceeded'
     ) {
 
-      this.otpError = 'Please wait 60 seconds before requesting another code';
+      this.otpError = 'Please wait 10 seconds before requesting another code';
 
     } else if (error.status === 404 || error.error?.error === 'Pending data not found') {
 
@@ -265,7 +270,7 @@ export default class OtpComponent implements OnInit, OnDestroy {
   }
 
   private startResendCooldown(): void {
-    this.resendCooldown = 60;
+    this.resendCooldown = this.ResendCoolDown;
     this.canResend = false;
 
     this.resendCooldownSubscription = interval(1000).subscribe(() => {
@@ -318,6 +323,8 @@ export default class OtpComponent implements OnInit, OnDestroy {
 
     if (this.purpose === OtpPurpose.REGISTER) {
 
+      this.previousPage = "Register";
+
       setTimeout(() => {
         this.router.navigate(['/Register'], {
           queryParams: {verified: 'true'}
@@ -325,6 +332,8 @@ export default class OtpComponent implements OnInit, OnDestroy {
       }, 2000);
 
     } else if (this.purpose === OtpPurpose.EMAIL_CHANGE) {
+
+      this.previousPage = "Profile";
 
       setTimeout(() => {
         this.router.navigate(['/Profile'], {

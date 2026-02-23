@@ -17,7 +17,23 @@ class ProfileController {
 
 
     }
+    async checkSession(res:Response,req:Request):Promise<void>{
+        try{
+            const token = req.cookies[AUTH_COOKIE_NAME];
 
+            const session = await this.SessionService.getSession(token);
+
+            if(!session){
+                res.status(401).json({ message: "Unauthorized" });
+                return;
+            }
+
+            const user = await this.ProfileService.getUserProfile(session.userId);
+
+            res.status(200).json(user)
+
+        }catch(error:any){}
+    }
 
     async getUserProfile(req: Request, res: Response): Promise<void> {
 
@@ -109,7 +125,7 @@ class ProfileController {
     async initiateEmailChange(req: Request, res: Response): Promise<void> {
 
         try {
-            const newEmail = req.body;
+            const {email} = req.body;
 
             const token = req.cookies[AUTH_COOKIE_NAME];
 
@@ -121,10 +137,11 @@ class ProfileController {
             }
             const id = sessionData.userId;
 
-            await this.AuthenticationService.initiateEmailChange(id,newEmail);
+            await this.AuthenticationService.initiateEmailChange(id,email);
 
             res.status(200).json({
-                message: `Successfully initiated email change, ${newEmail}`
+                message: `Successfully initiated email change`,
+                email:email
             });
 
         } catch (error: any) {
@@ -140,7 +157,7 @@ class ProfileController {
     async completeEmailChange(req: Request, res: Response): Promise<void> {
 
         try {
-            const { pendingEmail, otp} = req.body;
+            const { email, otp} = req.body;
 
 
             const token = req.cookies[AUTH_COOKIE_NAME];
@@ -153,22 +170,25 @@ class ProfileController {
             }
             const id = sessionData.userId;
 
-            if ( !pendingEmail || !otp) {
+            if ( !email || !otp) {
                 res.status(400).json({
                     error: "Missing required fields"
                 });
                 return;
             }
 
-           const userWithUpdatedEmail= await this.AuthenticationService.completeEmailChange(id, pendingEmail, otp);
+           const userWithUpdatedEmail= await this.AuthenticationService.completeEmailChange(id, email, otp);
 
            if(!userWithUpdatedEmail) {
                res.status(400).json({
                    error: `could not complete email change, ${userWithUpdatedEmail}`
+               })
+           return;
+           }
 
-               })           }
+
             res.status(200).json({
-                message: `Successfully completed email change, ${pendingEmail}`,
+                message: `Successfully completed email change, ${email}`,
                 user: userWithUpdatedEmail
             });
 

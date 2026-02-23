@@ -10,7 +10,7 @@ class OTPService {
 
 
     private OTP_EXPIRY: number = 300;
-    private RATE_LIMIT_WINDOW: number = 60;//seconds window to ask new otp
+    private RATE_LIMIT_WINDOW: number = 10;//seconds window to ask new otp
     private MAX_ATTEMPTS = 5;
 
     constructor(private redisClient: RedisClient) {

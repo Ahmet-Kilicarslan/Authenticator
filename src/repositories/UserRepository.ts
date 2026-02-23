@@ -43,7 +43,7 @@ class UserRepository {
 
         const sql = `UPDATE users
                      SET email = $1
-                     WHERE id = $2 Returning id,username,email
+                     WHERE id = $2 Returning id,username,email,
               is_verified as "isVerified",
                   created_at as "createdAt",
                   updated_at as "updatedAt" `;

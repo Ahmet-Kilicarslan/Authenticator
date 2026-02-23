@@ -1,5 +1,6 @@
 import type {Request, Response} from 'express';
-import type {RegisterDTO, LoginDTO} from '../types';
+import type {RegisterDTO, LoginDTO,} from '../types';
+import {OTP_PURPOSES} from '../utils/constants.js'
 import AuthenticationService from '../services/AuthenticationService.js';
 import PendingRegistrationService from '../services/PendingRegistrationService.js';
 import EmailVerificationService from '../services/EmailVerificationService.js';
@@ -95,31 +96,6 @@ class AuthenticationController {
     }
 
 
-   /* async verifyEmail(req: Request, res: Response): Promise<void> {
-        try {
-            const {email, otp} = req.body;
-
-            // Basic input validation
-            if (!email || !otp) {
-                res.status(400).json({
-                    error: 'Missing fields',
-                    message: 'Email and OTP are required'
-                });
-                return;
-            }
-
-            const result = await this.EmailVerificationService.verifyOTP(email, otp);
-
-            res.status(200).json({
-                message: 'Email verified successfully! Registration complete.',
-                email: result
-            });
-        } catch (error: any) {
-
-
-        }
-    }*/
-
     async completeRegistration(req: Request, res: Response): Promise<void> {
         try {
             const {email, otp} = req.body;
@@ -175,25 +151,30 @@ class AuthenticationController {
     async resendOTP(req: Request, res: Response): Promise<void> {
 
         try {
-            const {email,purpose} = req.body;
+            const {email, purpose} = req.body;
 
-            if (!email) {
+            if (!email || !purpose) {
                 res.status(400).json({
                     error: 'Missing fields',
                     message: 'Email is required'
                 })
+                return;
             }
 
-            const checkPending = await this.PendingRegistrationService.exists(email);
 
-            if (!checkPending) {
-                res.status(400).json({
-                    error: 'Missing registration process',
-                    message: 'No pending registration '
-                })
+            if (purpose === OTP_PURPOSES.REGISTER) {
+                const checkPending = await this.PendingRegistrationService.exists(email);
+
+                if (!checkPending) {
+                    res.status(400).json({
+                        error: 'Missing registration process',
+                        message: 'No pending registration '
+                    })
+                    return;
+                }
             }
 
-            await this.EmailVerificationService.sendVerificationEmail(email,purpose);
+            await this.EmailVerificationService.sendVerificationEmail(email, purpose);
 
             res.status(200).json({
                 message: 'Verification email resent successfully',
