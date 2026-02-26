@@ -5,7 +5,7 @@ import {tap, catchError} from 'rxjs/operators';
 import {Observable, throwError, map, of} from 'rxjs';
 import {
   UserData, ProfileResponse, EmailChangeRequest, EmailChangeInitiateResponse, EmailChangeCompleteResponse,
-  EmailVerificationRequest
+  EmailVerificationRequest, editPasswordRequest
 } from '../types/UserTypes'
 
 @Injectable({
@@ -20,6 +20,20 @@ export default class ProfileService {
               private router: Router) {
   }
 
+
+  editPassword(request: editPasswordRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/edit-password`, request, {withCredentials: true}).pipe(
+      tap(response => {
+
+        console.log(response.message);
+
+      }), catchError((error: HttpErrorResponse) => {
+
+        return throwError(() => this.handleError(error));
+      })
+    )
+
+  }
 
   getProfile(): Observable<UserData> {
 
@@ -41,7 +55,7 @@ export default class ProfileService {
     return this.http.post<EmailChangeInitiateResponse>(
       `${this.apiUrl}/initiate-email-change`,
       request,
-      { withCredentials: true }
+      {withCredentials: true}
     ).pipe(
       tap(response => {
         console.log('Initiate success:', response);
@@ -59,7 +73,7 @@ export default class ProfileService {
     return this.http.post<EmailChangeCompleteResponse>(
       `${this.apiUrl}/complete-email-change`,
       request,
-      { withCredentials: true }
+      {withCredentials: true}
     ).pipe(
       tap(response => {
         console.log('Complete success:', response);

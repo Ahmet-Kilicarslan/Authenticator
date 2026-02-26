@@ -101,7 +101,17 @@ class ProfileController {
 
     async resetPasswordWithOldPassword(req: Request, res: Response): Promise<void> {
         try {
-            const {id, newPassword, oldPassword} = req.body;
+            const { newPassword, oldPassword} = req.body;
+
+            const token = req.cookies[AUTH_COOKIE_NAME];
+
+            const sessionData = await this.SessionService.getSession(token);
+
+            if(!sessionData){
+                res.status(401).json({ message: 'Invalid or expired session' });
+                return;
+            }
+            const id = sessionData.userId;
 
 
             await this.PasswordService.resetPasswordWithOldPassword(id, newPassword, oldPassword);

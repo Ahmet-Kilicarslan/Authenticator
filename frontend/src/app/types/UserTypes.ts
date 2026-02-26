@@ -9,7 +9,10 @@ export interface LoginRequest {
   password:string;
 }
 
-
+export interface editPasswordRequest{
+  oldPassword:string;
+  newPassword:string;
+}
 
 export interface LoginResponse {
 

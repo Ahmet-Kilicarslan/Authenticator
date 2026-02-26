@@ -24,6 +24,15 @@ class UserRepository {
         return result.rows[0];
     };
 
+    async assignUserRole(userId: number, roleId: number): Promise<void> {
+        const sql = `INSERT INTO user_roles(user_id, role_id)
+                     VALUES ($1, $2) `;
+
+        await pool.query(sql, [userId, roleId]);
+
+
+    }
+
     //Change later
     async editUserInfoWithoutEmailJustUsernameInThisCase(id:number,username:string):Promise<User>{
 
@@ -42,7 +51,7 @@ class UserRepository {
     async editEmail(id:number,email:string):Promise<User>{
 
         const sql = `UPDATE users
-                     SET email = $1
+                     SET email = $1,updated_at = CURRENT_TIMESTAMP
                      WHERE id = $2 Returning id,username,email,
               is_verified as "isVerified",
                   created_at as "createdAt",
@@ -178,7 +187,8 @@ class UserRepository {
     async resetPassword(password: string, userId: number): Promise<void> {
 
         const sql = `UPDATE users
-                     SET password = $1
+                     SET password = $1,
+                         updated_at  = CURRENT_TIMESTAMP
                      WHERE id = $2`
 
         const result = await pool.query(sql, [password, userId]);

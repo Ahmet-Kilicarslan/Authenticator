@@ -118,30 +118,23 @@
             <span class="security-value">********</span>
             <button type="button"
                     class="btn-secondary"
-                    (click)="handleChangePassword()">
+                    (click)="openPasswordModal()">
               CHANGE PASSWORD
             </button>
-          </div>
-        </div>
-
-        <div class="security-item">
-          <div class="security-info">
-            <span class="security-label">TWO-FACTOR AUTH</span>
-            <span class="security-label security-disabled">DISABLED</span>
-            <button type="button"
-                    class="btn-secondary"
-                    (click)="handleEnable2FA()">
-              ENABLE 2FA
-            </button>
-
           </div>
         </div>
 
 
       </div>
     </div>
-
   </div>
-
-
 </div>
+
+@if(showPasswordModal){
+<app-edit-password-modal
+(OnSave)="handleChangePassword($event)"
+(Oncancel)="closePasswordModal()"
+>
+</app-edit-password-modal>
+
+}

@@ -77,6 +77,7 @@ export default class RegisterComponent {
       },
       error: (error: any) => {
 
+        this.handleRegisterError(error);
         this.isRegisterLoading = false;
         console.error(error);
       }
@@ -85,6 +86,16 @@ export default class RegisterComponent {
   }
 
   private handleRegisterError(error: any) {
+    const body=error.error;
+
+    if(body.field==='email'){
+      this.emailError= body.message;
+    }if(body.field==='password'){
+      this.passwordError= body.message;
+
+    }if(body.field==='username'){
+      this.usernameError= body.message;
+    }
 
   }
 

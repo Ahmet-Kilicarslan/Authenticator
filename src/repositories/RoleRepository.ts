@@ -1,7 +1,7 @@
 import pool from "../config/dbc";
 
 
-class UserRepository {
+class roleRepository {
 
 
     async assignUserRole(userId: number, roleId: number): Promise<void> {
@@ -48,4 +48,4 @@ class UserRepository {
 
 }
 
-export default UserRepository;
+export default roleRepository;

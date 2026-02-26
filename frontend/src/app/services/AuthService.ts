@@ -58,7 +58,7 @@ export default class AuthService {
         console.log('Login successful', response);
 
       }), catchError((error: any) => {
-        return throwError(() => error.message);
+        return throwError(() => error);
 
       })
     );
@@ -78,7 +78,7 @@ export default class AuthService {
 
 
       }), catchError((error: any) => {
-        return throwError(() => error.message);
+        return throwError(() => error);
       })
     )
   }

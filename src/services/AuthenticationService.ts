@@ -7,6 +7,7 @@ import type ProfileService from "./ProfileService.js"
 import type PendingRegistrationService from './PendingRegistrationService.js';
 import type EmailVerificationService from './EmailVerificationService.js';
 import {ROLES,OTP_PURPOSES} from '../utils/constants.js'
+import {EmailExistsError,UsernameExistsError,WeakPasswordError} from '../types/errors.js'
 
 class AuthenticationService {
 
@@ -77,17 +78,17 @@ class AuthenticationService {
 
         const emailExists = await this.UserRepository.emailExists(lowerCaseEmail);
         if (emailExists) {
-            throw new Error("Email already exists");
+            throw new EmailExistsError();
 
         }
         const uniqueName = await this.UserRepository.usernameExists(registerDto.username);
         if (uniqueName) {
-            throw new Error("Username already exists");
+            throw new UsernameExistsError()
         }
         const isPassword = await this.passwordService.validateStrength(registerDto.password);
 
         if (!isPassword.strong) {
-            throw new Error(`Weak password: ${isPassword.errors.join(', ')}`);
+            throw new WeakPasswordError(isPassword.errors.join(', '));
         }
 
 
@@ -105,11 +106,7 @@ class AuthenticationService {
 
     }
 
-   /* async resendVerificationEmail(email: string): Promise<void> {
 
-        await this.emailVerificationService.sendVerificationEmail(email);
-
-    }*/
 
 
     async completeRegistration(email: string, otp: string): Promise<{ token: string, user: User }> {

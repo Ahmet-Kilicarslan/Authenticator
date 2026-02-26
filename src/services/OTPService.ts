@@ -61,13 +61,13 @@ class OTPService {
         const attemptsKey = `otp:attempts:${purpose}:${email}`;
 
 
-        const storedOtp = await this.redisClient.get(otpKey)
+        const storedOtp = await this.redisClient.getDel(otpKey)
 
         if (!storedOtp) {
             return false; // expired or never existed
         }
 
-        const attempts = Number(await this.redisClient.get(attemptsKey) || 0);
+        const attempts = Number(await this.redisClient.getDel(attemptsKey) || 0);
 
         if (attempts >= this.MAX_ATTEMPTS) {
             throw new Error("Too many incorrect attempts. OTP blocked.");
@@ -78,8 +78,7 @@ class OTPService {
             return false;
         }
 
-        await this.redisClient.del(otpKey);
-        await this.redisClient.del(attemptsKey);
+
 
 
         return storedOtp === otp;

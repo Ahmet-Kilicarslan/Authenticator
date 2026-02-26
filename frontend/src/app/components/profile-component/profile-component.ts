@@ -1,14 +1,16 @@
 import {Component, OnInit} from '@angular/core';
-import {UserData, EmailChangeRequest, EmailChangeInitiateResponse} from '../../types/UserTypes';
+import {UserData, EmailChangeRequest, EmailChangeInitiateResponse,editPasswordRequest} from '../../types/UserTypes';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import ProfileService from '../../services/ProfileService';
 import AuthService from '../../services/AuthService';
+import EditPasswordModal from '../../components/edit-password-modal/edit-password-modal'
 
 @Component({
   selector: 'app-profile-component',
   imports: [
-    FormsModule
+    FormsModule,
+    EditPasswordModal
   ],
   templateUrl: './profile-component.html',
   styleUrl: './profile-component.css',
@@ -20,6 +22,8 @@ export default class ProfileComponent implements OnInit {
   isSaving = false;
   isLoading = false;
   errorMessage: string = "";
+  showPasswordModal:boolean =false;
+
 
   userData: UserData = {
     id: 0,
@@ -38,6 +42,14 @@ export default class ProfileComponent implements OnInit {
 
   ngOnInit() {
     this.loadUserData();
+  }
+
+  openPasswordModal() {
+    this.showPasswordModal = true;
+  }
+
+  closePasswordModal() {
+    this.showPasswordModal = false;
   }
 
   formatDate(isoString: string): string {
@@ -116,11 +128,19 @@ export default class ProfileComponent implements OnInit {
     this.isEditing = false;
   }
 
-  handleEnable2FA(): void {
+  handleChangePassword(request:editPasswordRequest): void {
+    this.profileService.editPassword(request).subscribe({
+      next:(response:any)=>{
+        console.log(response.message);
+      },error:(error:Error)=>{
+
+        console.log("Failed to change Password",error.message);
+      }
+    })
+
   }
 
-  handleChangePassword(): void {
-  }
+
 
   handleLogout(): void {
 

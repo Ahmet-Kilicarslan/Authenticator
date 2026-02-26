@@ -1,7 +1,7 @@
 import UserRepository from "../repositories/UserRepository";
 import AuthProviderRepository from "../repositories/AuthProviderRepository";
 import type {AuthProviderDTO, RegisterDTO, User} from "../types";
-
+import {ROLES} from '../utils/constants.js'
 class OauthService {
 
     constructor(private UserRepository: UserRepository,
@@ -43,6 +43,8 @@ class OauthService {
              password: '',
          }
         const newUser = await this.UserRepository.create(userData);
+
+        await this.UserRepository.assignUserRole(newUser.id,ROLES.USER);
 
         await this.AuthProviderRepository.create({
             userId: newUser.id,

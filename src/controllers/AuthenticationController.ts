@@ -5,6 +5,7 @@ import AuthenticationService from '../services/AuthenticationService.js';
 import PendingRegistrationService from '../services/PendingRegistrationService.js';
 import EmailVerificationService from '../services/EmailVerificationService.js';
 import {AUTH_COOKIE_CONFIG, AUTH_COOKIE_NAME} from '../config/cookie.js';
+import {WeakPasswordError,UsernameExistsError,EmailExistsError} from '../types/errors.js'
 
 /***********************************************************
  * Authentication Controller
@@ -63,35 +64,26 @@ class AuthenticationController {
             });
 
         } catch (error: any) {
-            console.error('❌ Registration error:', error);
+            console.error(' Registration error:', error.message);
 
-            // Map service errors to HTTP status codes
-            if (error.message === 'Email already exists') {
+            if(error instanceof EmailExistsError){
                 res.status(409).json({
-                    error: 'Email already registered',
-                    message: error.message
-                });
-            } else if (error.message === 'Username already exists') {
-                res.status(409).json({
-                    error: 'Username taken',
-                    message: error.message
-                });
-            } else if (error.message.includes('Weak password')) {
+                    field:'email',
+                    message:error.message
+                })
+            }else if(error instanceof WeakPasswordError){
                 res.status(400).json({
-                    error: 'Weak password',
-                    message: error.message
-                });
-            } else if (error.message.includes('wait before requesting')) {
-                res.status(429).json({
-                    error: 'Rate limit exceeded',
-                    message: error.message
-                });
-            } else {
-                res.status(500).json({
-                    error: 'Registration failed',
-                    message: 'An error occurred during registration'
-                });
+                    field:'password',
+                    message:error.message
+                })
+            }else if(error instanceof UsernameExistsError){
+                res.status(409).json({
+                    field:'username',
+                    message:error.message
+                })
             }
+
+
         }
     }
 
