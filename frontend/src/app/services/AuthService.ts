@@ -4,14 +4,14 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {tap, catchError} from 'rxjs/operators';
 import {Observable, throwError} from 'rxjs';
-
+import {environment} from '../../environments/environment'
 @Injectable({
   providedIn: 'root'
 })
 
 export default class AuthService {
 
-  private apiUrl: string = "http://localhost:3000/api/auth";
+  private apiUrl: string = `${environment.apiUrl}/api/auth`;
 
   constructor(private http: HttpClient,
               private router: Router) {

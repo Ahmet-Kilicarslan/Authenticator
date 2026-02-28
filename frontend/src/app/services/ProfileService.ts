@@ -6,7 +6,9 @@ import {Observable, throwError, map, of} from 'rxjs';
 import {
   UserData, ProfileResponse, EmailChangeRequest, EmailChangeInitiateResponse, EmailChangeCompleteResponse,
   EmailVerificationRequest, editPasswordRequest
+
 } from '../types/UserTypes'
+import {environment} from '../../environments/environment'
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,7 @@ import {
 
 export default class ProfileService {
 
-  private apiUrl = 'http://localhost:3000/api/profile'
+  private apiUrl = `${environment.apiUrl}/api/profile`
 
   constructor(private http: HttpClient,
               private router: Router) {

@@ -3,13 +3,14 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {tap, catchError, map} from 'rxjs/operators';
 import {Observable, of, throwError} from 'rxjs';
+import {environment} from '../../environments/environment'
 
 @Injectable({
   providedIn: 'root'
 })
 export  default class OAuthService {
 
-  private apiUrl = 'http://localhost:3000/api/oauth'
+  private apiUrl = `${environment.apiUrl}/api/oauth`
   private readonly tokenKey = 'session_token';
 
 
