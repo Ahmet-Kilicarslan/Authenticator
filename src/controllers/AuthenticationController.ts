@@ -21,6 +21,7 @@ import {WeakPasswordError,UsernameExistsError,EmailExistsError} from '../types/e
  * - Access database directly
  * - Hash passwords
  * - Implement business rules
+
  ***********************************************************/
 class AuthenticationController {
 
